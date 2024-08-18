@@ -34,7 +34,7 @@ The project is composed of two parts:
 Start by compiling testing the smart contract:
 
 
- ```cd project directory```
+ ```cd <project directory>```
  
  ```cp .env-example .env```  
 

@@ -82,7 +82,7 @@ Upon success, you should see:
 #### https://explorer.fuse.io/address/0x7e1C8bBFAd6a01471706bB61491eDEBF51B8074B#code
 
 If you want the smart contract to successfully allow USDC borrowing, you will need to send some [USDC](https://explorer.fuse.io/address/0x28C3d1cD466Ba22f6cae51b1a4692a831696391A) to the address of the deployed smart contract.
-Use your preferred browser and send a few USDC cents to the smart contract address that was provided when you deployed the Lending smart contract.
+Use your preferred wallet and send a few USDC cents to the smart contract address that was provided when you deployed the **Lending** smart contract.
 You can withdraw at the end the USDC that you sent using the withdrawUSDC function that you can access from the [Fuse explorer](https://explorer.fuse.io/).
 
 We're all set with the smart contract installation and configuration.

@@ -1,0 +1,424 @@
+body {
+  margin: 0;
+  font-family: 'Arial', sans-serif;
+  background-color:  #7ADB8A;
+  
+}
+
+.App {
+  text-align: center;
+  color: #333;
+}
+
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 90%; 
+  margin: 1% auto; 
+  padding: 10px 20px; 
+  background-color: #7ADB8A; 
+  border-radius: 12px;
+}
+
+
+.header-title {
+  font-size: 30px;
+  font-weight: bold;
+  color:#090909;
+  margin: 0;
+}
+
+
+.connect-img{
+  height:15px;
+  width:15px;
+}
+
+
+.connect-btn {
+  display: flex;
+  align-items: center;
+  padding: 10px 20px;
+  font-size: 16px;
+  background-color: #f0f0f0;; /* Maintain original button background color */
+  color: inherit; /* Maintain original button text color */
+  border: 1px solid #ccc; /* You can adjust this as per your previous style */
+  border-radius: 20px;
+  cursor: pointer;
+}
+
+.connect-btn:hover {
+  background-color: #f0f0f0; /* Slight hover effect, adjust as needed */
+}
+
+
+.connect-button-not-logged {
+  padding: 10px 20px;
+  font-size: 16px;
+  background-color: #D9D9D9; /* Maintain original button background color */
+  color: inherit; /* Maintain original button text color */
+  border: 1px solid #ccc; /* You can adjust this as per your previous style */
+  border-radius: 20px;
+  cursor: pointer;
+}
+
+.connect-button-not-logged:hover {
+  background-color: #f0f0f0; /* Slight hover effect, adjust as needed */
+}
+
+.container {
+  margin: 1rem auto;
+  padding: 1rem;
+  max-width: 90%;
+  background-color: #f9f9f9;
+  border-radius: 12px;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+}
+
+h3 {
+  font-size:17px;
+  margin-bottom: 0.8rem;
+  margin-top: 0.8rem;
+  margin-left: 0.6rem;
+  color: #000000;
+  display: flex;
+
+}
+
+
+
+h2 {
+  margin-bottom: 1rem;
+  color: #f9f9f9;
+}
+
+
+.account-info p {
+  margin: 0.5rem 0;
+  font-size: 0.9rem;
+}
+
+.actions {
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.actions input {
+  padding: 0.5rem;
+  margin-right: 0.5rem;
+  width: 100px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+.action-btn {
+  padding: 0.5rem 0.5rem;
+  background-color:#7ADB8A;
+  color: #333;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  margin: 0.5rem 0;
+  font-weight: bold;
+}
+
+.action-btn:hover {
+  background-color:  #B2F5BC;
+}
+
+.action-btn:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.max-btn {
+ margin-left: 10px; 
+  padding: 2px 5px;
+  font-size: 11px; 
+  background-color: #B2F5BC;
+  color: #333;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  margin: 0.5rem 0;
+  font-weight: bold;
+}
+
+.max-btn:hover {
+  background-color: #75DA85;
+}
+
+.max-btn:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+
+.info-message {
+  font-size: 0.7em;   
+  color: #555555;    
+  margin-top: 5px;
+}
+
+/* Container for the collateral amount and the enable button */
+.collateral-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 15px;
+}
+
+/* Style for the button */
+.enable-collateral-btn {
+  background-color: #75DA85;
+  border: none;
+  color: white;
+  padding: 8px 16px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 11px;
+  border-radius: 25px;
+  cursor: pointer;
+}
+
+.connect-container {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.connect-button {
+  background-color: #4CAF50; 
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 11px;
+  margin-top: 10px;
+  cursor: pointer;
+}
+
+.dropdown-container {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-button {
+  background-color: #007BFF; 
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.dropdown-menu {
+  display: block;
+  position: absolute;
+  background-color: #f9f9f9;
+  min-width: 160px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1;
+}
+
+.dropdown-item {
+  color: black;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+  text-align: left;
+}
+
+.dropdown-item:hover {
+  background-color: #f1f1f1;
+}
+
+.toggle-section {
+  display: flex;
+  align-items: center;
+  justify-content: center; 
+  margin: 1 auto; 
+  width: 100%; 
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 20px; 
+  margin-left: 10px; 
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: .4s;
+  border-radius: 34px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 12px; 
+  width: 12px; 
+  border-radius: 50%;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  transition: .4s;
+}
+
+input:checked + .slider {
+  background-color: #75DA85; 
+}
+
+input:checked + .slider:before {
+  transform: translateX(26px); 
+}
+
+.slider.round {
+  border-radius: 34px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
+
+.max-btn {
+  margin-left: 10px; 
+}
+
+.tables-container {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+}
+
+.table-block {
+  width: 48%;
+  background-color: #7ADB8A;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #f9f9f9;
+}
+
+th, td {
+  padding: 10px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+  font-size: 14px;
+
+}
+
+th {
+  background-color: #f2f2f2;
+  font-size: 14px;
+}
+
+.asset-icon {
+  width: 24px;
+  vertical-align: middle;
+  margin-right: 8px;
+}
+
+.max-btn {
+  padding: 4px 8px;
+  margin-left: 8px;
+  font-size: 12px;
+  height: 50%;
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 34px;
+  height: 17px;
+  vertical-align: middle;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: .4s;
+  border-radius: 17px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 13px;
+  width: 13px;
+  left: 2px;
+  bottom: 2px;
+  background-color: white;
+  transition: .4s;
+  border-radius: 50%;
+}
+
+input:checked + .slider {
+  background-color:  #7ADB8A;
+}
+
+input:checked + .slider:before {
+  transform: translateX(17px);
+}
+
+
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 90%; /* Set the width to 90% */
+  margin: 0 auto; /* Center the header */
+  padding: 10px 20px; /* Adjust padding if needed */
+  background-color: inherit; /* Maintain the original background color */
+}
+
+.fuse-icon {
+  width: 20px;
+  height: 20px;
+  margin-right: 10px; /* Space between the icon and the text */
+}
+
+
+.switch-network-btn {
+  padding: 10px 20px;
+  font-size: 16px;
+  margin-left: 20px;
+  background-color: #4caf50; /* Green color */
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.switch-network-btn:hover {
+  background-color: #45a049;
+}

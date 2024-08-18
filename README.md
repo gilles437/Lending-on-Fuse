@@ -14,13 +14,15 @@ A simple lending Defi APP that allows users to deposit WETH and borrow USDC, usi
 
 ## Technologies
 
-- Open Zeppelin: The contract uses IERC20 of OpenZeppelin to create an instance of a token and it uses also the Ownable and ReentrancyGuard of the OpenZepppelin to ensure security of the contract
+- Open Zeppelin: The contract uses IERC20 of OpenZeppelin to create an instance of a token and it uses also the Ownable and ReentrancyGuard of the OpenZepppelin to ensure security of the contract.
 - Supra Oracle : The contract uses the [Push Oracle](https://docs.supra.com/docs/data-feeds/decentralized) of Supra to fetch real time price feeds.
 - Hardhat: Hardhat is the development environment, asset pipeline, and testing framework for developing smart contracts.
 - Hardhat Network: Hardhat Network is used as blockchain for local testing and automatic testing.
+- An integrated "Mock Price" interface that allows to run full scenario with chai scripting, by just running ```npx hardhat test```.
 - React: React 18 is the front end framework used to ensure flexible user interaction.
-- Metamask
-- web3.js, ethers to interact with the blockchain network
+- Metamask.
+- Switch network to Fuse button.
+- web3.js, ethers to interact with the blockchain network.
 - EVM compatible, as FUSE is an EVM compatible blockchain.
 
 ## Installation

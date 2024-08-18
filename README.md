@@ -92,7 +92,13 @@ We're all set with the smart contract installation and configuration.
  ```cd <project directory>```
  
  ```cd ./lending-fe-dapp```
- 
+
+ Copy the newly generated smart contract ABI and ADDRESS in the App.js and ./abis/CONTRACT_ABI.json:
+
+1. Open App.js and replace the CONTRACT_ADDRESS with the new deployed smart contract address.
+2. Go to [Fuse explorer]() and copy the address of the new smart contract. Then go to the contract section and copy the ABI.
+    Paste the ABI in the file ./abis/CONTRACT_ABI.json
+
  ```npm install```
 
 In the project directory, you can then run:

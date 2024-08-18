@@ -46,7 +46,7 @@ Replace your wallet private key with the existing one in the .env file.
  
  ```npx hardhat compile```
 
- If you want to run the smart contract tests, you will need to run the Hardhat network in a separate console. Open a a consale and run:
+ If you want to run the smart contract tests, you will need to run the Hardhat network in a separate console. Open a new console and run:
 
  ```npx hardhat node```
 

@@ -79,12 +79,13 @@ Upon success, you should see:
 #### Successfully verified contract Lending on the block explorer.
 #### https://explorer.fuse.io/address/0x7e1C8bBFAd6a01471706bB61491eDEBF51B8074B#code
 
-If you want the smart contract to allow USDC borrowing, you will need to send some USDC to the address of the smart contract.
+If you want the smart contract to successfully allow USDC borrowing, you will need to send some [USDC](https://explorer.fuse.io/address/0x28C3d1cD466Ba22f6cae51b1a4692a831696391A) to the address of the deployed smart contract.
 Use your preferred browser and send a few USDC cents to the smart contract address that was provided when you deployed the Lending smart contract.
+You can withdraw at the end the USDC that you sent using the withdrawUSDC function that you can access from the [Fuse explorer](https://explorer.fuse.io/).
 
 We're all set with the smart contract installation and configuration.
 
-### Install the front end
+### 2. Install the front end
 
  ```cd <project directory>```
  
@@ -99,8 +100,6 @@ In the project directory, you can then run:
 Runs the app in the development mode.\
 Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
 
-The page will reload when you make changes.\
-
  ```npm run build```
 
 Builds the app for production to the `build` folder.\
@@ -108,7 +107,7 @@ It correctly bundles React in production mode and optimizes the build for the be
 
 ## Warning
 
-This code was not audited therefore you need to be very careful and use it at your own risk.
+This code was not audited therefore you need to be careful and use it at your own risk.
 
 ## Screenshot of the DApp
 

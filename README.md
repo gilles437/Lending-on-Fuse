@@ -58,7 +58,7 @@ Once tests are successful, you can deploy the **Lending** smart contract:
 
 Deploy on the fuse network (check hardhad.config.js if you want to configure another network):
 
-``npx hardhat run scripts/deploy.js --network fuse```
+```npx hardhat run scripts/deploy.js --network fuse```
 
 copy the address provided in the result after **Lending contract deployed to**
 

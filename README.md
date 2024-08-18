@@ -1,70 +1,120 @@
-# Getting Started with Create React App
+# Lending and Borrowing on the Fuse Network - DApp
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A simple lending Defi APP that allows users to deposit WETH and borrow USDC, using [supra oracles](https://supra.com/data/networks/fuse?version=1&nid=112&networkType=mainnet) to determine the price of the assets in the contracts. The smart contract has the following features:
 
-## Available Scripts
+- Users are be able to deposit WETH.
+- Users are able to enable WETH as collateral for borrowing.
+- Users are able to borrow USDC after enabling WETH as collateral, and up to 50% of the initial value deposited.
+- Users are not able to borrow more than their max borrow amount.
+- Users are able to repay their debt either fully or partially.
+- Users are able to withdraw their WETH or collateral provided they have no debt.
+- Admin is able to pause the contract.
+- The smart contract provides a view function that returns account information which includes collateral amount, borrow amount, account health etc
+- The smart contract implements a stable APY interest model for the borrowed USDC, users are charged interest over time, and first pay the accrued interests when they repay their debt.
 
-In the project directory, you can run:
+## Technologies
 
-### `npm start`
+- Open Zeppelin: The contract uses IERC20 of OpenZeppelin to create an instance of a token and it uses also the Ownable and ReentrancyGuard of the OpenZepppelin to ensure security of the contract
+- Supra Oracle : The contract uses the [Push Oracle](https://docs.supra.com/docs/data-feeds/decentralized) of Supra to fetch real time price feeds.
+- Hardhat: Hardhat is the development environment, asset pipeline, and testing framework for developing smart contracts.
+- Hardhat Network: Hardhat Network is used as blockchain for local testing and automatic testing.
+- React: React 18 is the front end framework used to ensure flexible user interaction.
+- Metamask
+- web3.js, ethers to interact with the blockchain network
+- EVM compatible, as FUSE is an EVM compatible blockchain.
+
+## Installation
+
+The project is composed of two parts:
+- The smart contracts. 
+- The Front End.
+
+### 1. Deploy Smart Contract
+
+Start by compiling testing the smart contract:
+
+
+ ```cd project directory```
+ 
+ ```cp .env-example .env```  
+
+Replace your wallet private key with the existing one in the .env file.
+
+ ```cd ./lending-contracts```
+ 
+ ```npm install```
+ 
+ ```npx hardhat compile```
+
+ If you want to run the smart contract tests, you will need to run the Hardhat network in a separate console. Open a a consale and run:
+
+ ```npx hardhat node```
+
+ Back to your original console, run:
+ 
+ ```npx hardhat test```
+
+Once tests are successful, you can deploy the **Lending** smart contract:
+
+Deploy on the fuse network (check hardhad.config.js if you want to configure another network):
+
+``npx hardhat run scripts/deploy.js --network fuse```
+
+copy the address provided in the result after **Lending contract deployed to**
+
+Finally, verify the contract:
+
+ ```npx hardhat verify --network fuse <the copied address> "0x28C3d1cD466Ba22f6cae51b1a4692a831696391A" "0x5622F6dC93e08a8b717B149677930C38d5d50682" "0x79E94008986d1635A2471e6d538967EBFE70A296" 10 false```
+
+where:
+
+- USDC_ADDRESS = 0x28C3d1cD466Ba22f6cae51b1a4692a831696391A on FUSE
+- WETH_ADDRESS = 0x5622F6dC93e08a8b717B149677930C38d5d50682 on FUSE
+- Supra address of FUSE: 0x79E94008986d1635A2471e6d538967EBFE70A296
+- interest rate APY = 10%
+- is Testing = false 
+
+Upon success, you should see:
+
+#### Successfully verified contract Lending on the block explorer.
+#### https://explorer.fuse.io/address/0x7e1C8bBFAd6a01471706bB61491eDEBF51B8074B#code
+
+If you want the smart contract to allow USDC borrowing, you will need to send some USDC to the address of the smart contract.
+Use your preferred browser and send a few USDC cents to the smart contract address that was provided when you deployed the Lending smart contract.
+
+We're all set with the smart contract installation and configuration.
+
+### Install the front end
+
+ ```cd <project directory>```
+ 
+ ```cd ./lending-fe-dapp```
+ 
+ ```npm install```
+
+In the project directory, you can then run:
+
+ ```npm run start```
 
 Runs the app in the development mode.\
 Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
 
 The page will reload when you make changes.\
-You may also see any lint errors in the console.
 
-### `npm test`
-
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
-
-### `npm run build`
+ ```npm run build```
 
 Builds the app for production to the `build` folder.\
 It correctly bundles React in production mode and optimizes the build for the best performance.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## Warning
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+This code was not audited therefore you need to be very careful and use it at your own risk.
 
-### `npm run eject`
+## Screenshot of the DApp
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+Congrats, once you've done all the steps, you should see the Lending Dapp on Fuse!
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+![alt text](https://github.com/gilles437/Lending-on-Fuse/blob/main/lending-fe-dapp/public/Screenshot%202024-08-18%20at%2021.25.47.png)
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
 
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)

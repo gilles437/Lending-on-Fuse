@@ -1,0 +1,158 @@
+{
+  "_format": "hh-sol-artifact-1",
+  "contractName": "ISupraSValueFeed",
+  "sourceName": "contracts/interfaces/ISupraSValueFeed.sol",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "pair_id_1",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "pair_id_2",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "operation",
+          "type": "uint256"
+        }
+      ],
+      "name": "getDerivedSvalue",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "int256",
+              "name": "roundDifference",
+              "type": "int256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "derivedPrice",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "decimals",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct ISupraSValueFeed.derivedData",
+          "name": "",
+          "type": "tuple"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_pairIndex",
+          "type": "uint256"
+        }
+      ],
+      "name": "getSvalue",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "round",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "decimals",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "time",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "price",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct ISupraSValueFeed.priceFeed",
+          "name": "",
+          "type": "tuple"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256[]",
+          "name": "_pairIndexes",
+          "type": "uint256[]"
+        }
+      ],
+      "name": "getSvalues",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "round",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "decimals",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "time",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "price",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct ISupraSValueFeed.priceFeed[]",
+          "name": "",
+          "type": "tuple[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_tradingPair",
+          "type": "uint256"
+        }
+      ],
+      "name": "getTimestamp",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "bytecode": "0x",
+  "deployedBytecode": "0x",
+  "linkReferences": {},
+  "deployedLinkReferences": {}
+}

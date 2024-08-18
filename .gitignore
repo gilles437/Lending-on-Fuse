@@ -6,13 +6,13 @@
 npm-debug.log*
 yarn-debug.log*
 .env
-.cache
 
 # Hardhat
-/frontend/node_modules/
-/smart-contracts/node_modules/
-/smart-contracts/cache/
-/smart-contracts/artifacts/
+/lending-fe-dapp/node_modules/
+/lending-contracts/node_modules/
+/lending-contracts/node_modules/
+/lending-contracts/cache/
+/lending-contracts/artifacts/
 
 # OS generated files
 .DS_Store

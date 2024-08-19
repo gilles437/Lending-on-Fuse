@@ -70,9 +70,7 @@ contract Lending is ReentrancyGuard, Ownable {
         wethToken = IERC20(_wethToken);
         interestRate = _interestRate;
         uint256 adjustedInterestRate = (_interestRate * 1e18) / 100;  // Results in 5e16, representing 0.05
-        console.log('adjustedInterestRate',adjustedInterestRate);
         perSecondRate = adjustedInterestRate / SECONDS_IN_YEAR;
-        console.log('perSecondRate',perSecondRate);
         if (isTesting == true) {
             sValueFeed = PriceFeedMock(_sValueFeed);
         }
@@ -251,10 +249,8 @@ contract Lending is ReentrancyGuard, Ownable {
         isCollateralEnabled = account.isCollateralEnabled;
         ethPrice = getEthPrice();
         collateralValue = account.collateralAmount * (getEthPrice() / 1e18) * (getUsdcUsdPrice() / 1e6);
-        console.log('getUsdcUsdPrice', getUsdcUsdPrice());
         maxBorrow = account.maxBorrow;
         interRate = interestRate;
-        console.log('interestRate',interestRate);
 
     }
 

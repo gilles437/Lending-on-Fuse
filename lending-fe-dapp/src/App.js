@@ -17,6 +17,8 @@ const WETH_CONTRACT_ABI = WETH_ABI;
 const USDC_CONTRACT_ADDRESS = '0x28C3d1cD466Ba22f6cae51b1a4692a831696391A'; 
 const USDC_CONTRACT_ABI = USDC_ABI; 
 
+const EXPLORER_FUSE_ADDRESS="https://explorer.fuse.io/address/"
+
 function App() {
   const [account, setAccount] = useState(null);
   const [web3, setWeb3] = useState(null);
@@ -502,7 +504,7 @@ function App() {
             <tbody>
               <tr>
                 <td>
-                  <img src={ethIcon} alt="Ethereum" className="asset-icon" /> WETH
+                  <img src={ethIcon} alt="Ethereum" className="asset-icon" /> <a target="_blank" href={EXPLORER_FUSE_ADDRESS + WETH_CONTRACT_ADDRESS}>WETH</a>
                 </td>
                 <td>
                   {web3.utils.fromWei(collateral, 'ether')} ETH<br />
@@ -557,7 +559,7 @@ function App() {
             <tbody>
               <tr>
                 <td>
-                  <img src={usdcIcon} alt="USDC" className="asset-icon" /> USDC
+                  <img src={usdcIcon} alt="USDC" className="asset-icon" /> <a target="_blank" href={EXPLORER_FUSE_ADDRESS + USDC_CONTRACT_ADDRESS}>USDC</a>
                 </td>
                 <td>
                   {Number(web3.utils.fromWei(debt, 'mwei')).toFixed(6)} USDC
@@ -604,7 +606,7 @@ function App() {
                 <tbody>
                 <tr>
                     <td>
-                    <img src={ethIcon} alt="Ethereum" className="asset-icon" /> WETH
+                    <img src={ethIcon} alt="Ethereum" className="asset-icon" /> <a target="_blank" href={EXPLORER_FUSE_ADDRESS + WETH_CONTRACT_ADDRESS}>WETH</a>
                     </td>
                     <td>
                         {parseFloat(wethBalance).toFixed(6)} ETH<br />
@@ -653,7 +655,7 @@ function App() {
                 <tbody>
                 <tr>
                     <td>
-                    <img src={usdcIcon} alt="USDC" className="asset-icon" /> USDC
+                    <img src={usdcIcon} alt="USDC" className="asset-icon" /> <a target="_blank" href={EXPLORER_FUSE_ADDRESS + USDC_CONTRACT_ADDRESS}>USDC</a>
                     </td>
                     <td>
                     {usdcBalance} USDC

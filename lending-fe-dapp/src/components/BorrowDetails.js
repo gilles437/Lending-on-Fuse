@@ -13,7 +13,6 @@ const BorrowDetails = ({ healthFactor, web3, account, contract }) => {
                 try {
                     // Call the getDebtInfo function from the smart contract
                     const debtInfo = await contract.methods.getDebtInfo(account).call();
-
                     setPrincipal(Number(web3.utils.fromWei(debtInfo.principal, 'mwei')).toFixed(6));  
                     setAccruedInterest(web3.utils.fromWei(debtInfo.accruedInterest, 'ether'));
                     setLastBorrowTime(debtInfo.lastBorrowTime);

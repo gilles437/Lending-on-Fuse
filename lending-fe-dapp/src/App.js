@@ -7,9 +7,9 @@ import fuseIcon from './images/fuse-icon.png';
 import WETH_ABI from './abis/WETH_ABI.json'
 import USDC_ABI from './abis/USDC_ABI.json'
 import WORKING_CONTRACT_ABI from './abis/CONTRACT_ABI.json'
-
 import BorrowDetails from './components/BorrowDetails'
-const CONTRACT_ADDRESS = '0x4691a3846190a447c8d9eF67D1789979Ce9E9BA2';
+
+const CONTRACT_ADDRESS = '0x80706258180341D8aE6334e1934EDC8E0649b057';
 const CONTRACT_ABI = WORKING_CONTRACT_ABI;
 
 const WETH_CONTRACT_ADDRESS = '0x5622F6dC93e08a8b717B149677930C38d5d50682'; 
@@ -297,7 +297,7 @@ function App() {
 
         const accountInfo = await contractInstance.methods.getAccountInfo(account).call();
         setCollateral(accountInfo.collateralAmount);
-        setInterestRate(Number(accountInfo.interRate));
+        setInterestRate(Number(accountInfo.interRate) / 100);
         setMaxBorrow(Number(accountInfo.maxBorrow));
         const collateralPriceInUSD =  web3.utils.fromWei(accountInfo.collateralAmount, 'ether') * web3.utils.fromWei(accountInfo.ethPrice, 'ether');
       

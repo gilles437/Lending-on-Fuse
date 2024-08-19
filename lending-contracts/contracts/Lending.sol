@@ -69,8 +69,10 @@ contract Lending is ReentrancyGuard, Ownable {
         usdcToken = IERC20(_usdcToken);
         wethToken = IERC20(_wethToken);
         interestRate = _interestRate;
-        perSecondRate = (interestRate * 1e18) / SECONDS_IN_YEAR;
-       
+        uint256 adjustedInterestRate = (_interestRate * 1e18) / 100;  // Results in 5e16, representing 0.05
+        console.log('adjustedInterestRate',adjustedInterestRate);
+        perSecondRate = adjustedInterestRate / SECONDS_IN_YEAR;
+        console.log('perSecondRate',perSecondRate);
         if (isTesting == true) {
             sValueFeed = PriceFeedMock(_sValueFeed);
         }
@@ -155,7 +157,7 @@ contract Lending is ReentrancyGuard, Ownable {
         usdcToken.safeTransferFrom(msg.sender, address(this), amount);
         // Update the user's debt
         account.debtAmount -= amount;
-        // Calculate accrued interest with proper decimal handling
+        // Calculate the accrued interest with proper decimal handling
         uint256 newInterest = calculateAccruedInterest(userBorrow);
         userBorrow.accruedInterest += newInterest;
 
@@ -252,6 +254,8 @@ contract Lending is ReentrancyGuard, Ownable {
         console.log('getUsdcUsdPrice', getUsdcUsdPrice());
         maxBorrow = account.maxBorrow;
         interRate = interestRate;
+        console.log('interestRate',interestRate);
+
     }
 
     function getEthPrice() public view returns (uint256) {

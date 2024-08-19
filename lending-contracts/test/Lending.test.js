@@ -4,7 +4,7 @@ const { ethers } = require("hardhat");
 
 const ETH_USD_PRICE = 2650
 const BORROW_PERCENTAGE = 0.5
-const INTEREST_RATE = 0.1 //10%
+const INTEREST_RATE = 1000 // 1000 = 10%
 
 describe("Lending Contract", function () {
     let lending, usdcToken, wethToken;
@@ -33,7 +33,7 @@ describe("Lending Contract", function () {
 
       // Deploy the lending contract
       const Lending = await ethers.getContractFactory("Lending");
-      lending = await Lending.deploy( usdcAddress,  wethAddress,  priceFeedMockAddress, INTEREST_RATE * 100, true); // Interest rate of 5%
+      lending = await Lending.deploy( usdcAddress,  wethAddress,  priceFeedMockAddress, INTEREST_RATE, true); // Interest rate of 5%
       const transactionReceipt4 = await lending.deploymentTransaction().wait(1);
       lendingAddress = await transactionReceipt4.contractAddress;
 

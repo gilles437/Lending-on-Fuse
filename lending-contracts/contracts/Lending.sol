@@ -16,7 +16,7 @@ import "./PriceFeedMock.sol";
 contract Lending is ReentrancyGuard, Ownable {
     using SafeERC20 for IERC20;
 
-    IERC20 public usdcToken; // USDC token contract
+    IERC20 public usdcToken; // USDC  token contract
     IERC20 public wethToken; // WETH token contract
     uint256 public interestRate; // in basis points, e.g., 500 = 5%
 
@@ -201,14 +201,6 @@ contract Lending is ReentrancyGuard, Ownable {
         emit Unpaused(msg.sender);
     }
 
-    function getHealthFactor(address user, uint256 amountToBorrow) public view returns (uint256) {
-        Account storage account = accounts[user];
-        uint256 collateralValue = getCollateralValue(account.collateralAmount);
-        uint256 totalDebt = account.debtAmount + amountToBorrow;
-        if (totalDebt == 0) return type(uint256).max; // No debt, infinite health factor
-        return collateralValue / totalDebt;
-    }
-
     function getCollateralValue(uint256 collateralAmount) public view returns (uint256) {
         uint256 ethPrice = getEthPrice();
         uint256 collateral = (collateralAmount / 1e18) * (ethPrice / 1e18);
@@ -217,7 +209,7 @@ contract Lending is ReentrancyGuard, Ownable {
 
     function calculateMaxBorrow(address user) public  returns (uint256) {
         Account storage account = accounts[user];
-        uint256 collateralValue = account.collateralAmount * getEthPrice() / 1e18;
+        uint256 collateralValue = account.collateralAmount * getEthPrice() / 1e18 * (getUsdcUsdPrice() / 1e6);
 
         // Calculate maximum borrowable amount as 50% of collateral value
         uint256 maxBorrowable = collateralValue / 2;
@@ -250,14 +242,14 @@ contract Lending is ReentrancyGuard, Ownable {
 
     }
 
-    function getAccountInfo(address user) public view returns (uint256 collateralAmount, uint256 debtAmount, bool isCollateralEnabled, uint256 ethPrice, uint256 collateralValue, uint256 healthFactor, uint256 maxBorrow, uint256 interRate) {
+    function getAccountInfo(address user) public view returns (uint256 collateralAmount, uint256 debtAmount, bool isCollateralEnabled, uint256 ethPrice, uint256 collateralValue, uint256 maxBorrow, uint256 interRate) {
         Account storage account = accounts[user];
         collateralAmount = account.collateralAmount;
         debtAmount = account.debtAmount;
         isCollateralEnabled = account.isCollateralEnabled;
         ethPrice = getEthPrice();
-        healthFactor = calculateHealthFactor(msg.sender);
-        collateralValue = account.collateralAmount * getEthPrice() / 1e18; // Assuming 1 ETH = 1 USDC for simplicity
+        collateralValue = account.collateralAmount * (getEthPrice() / 1e18) * (getUsdcUsdPrice() / 1e6);
+        console.log('getUsdcUsdPrice', getUsdcUsdPrice());
         maxBorrow = account.maxBorrow;
         interRate = interestRate;
     }
@@ -273,7 +265,7 @@ contract Lending is ReentrancyGuard, Ownable {
     function getUsdcUsdPrice() public view returns (uint256) {
         //index 89 for pair eth_usdt
         uint256 ethOraclePrice = uint256(getPrice(89).price);
-        return ethOraclePrice ; 
+        return ethOraclePrice / 100; 
     }
 
     function withdrawUSDC(uint256 amount) external onlyOwner whenNotPaused nonReentrant {

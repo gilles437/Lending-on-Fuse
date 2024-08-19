@@ -263,7 +263,7 @@ contract Lending is ReentrancyGuard, Ownable {
     }
 
     function getUsdcUsdPrice() public view returns (uint256) {
-        //index 89 for pair eth_usdt
+        //index 89 for pair usdc_usd
         uint256 ethOraclePrice = uint256(getPrice(89).price);
         return ethOraclePrice / 100; 
     }

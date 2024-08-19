@@ -4,6 +4,8 @@ const { ethers } = require("hardhat");
 
 const ETH_USD_PRICE = 2650
 const BORROW_PERCENTAGE = 0.5
+const INTEREST_RATE = 0.1 //10%
+
 describe("Lending Contract", function () {
     let lending, usdcToken, wethToken;
     let owner, addr1, addr2;
@@ -31,7 +33,7 @@ describe("Lending Contract", function () {
 
       // Deploy the lending contract
       const Lending = await ethers.getContractFactory("Lending");
-      lending = await Lending.deploy( usdcAddress,  wethAddress,  priceFeedMockAddress, 100000000000, true); // Interest rate of 5%
+      lending = await Lending.deploy( usdcAddress,  wethAddress,  priceFeedMockAddress, INTEREST_RATE * 100, true); // Interest rate of 5%
       const transactionReceipt4 = await lending.deploymentTransaction().wait(1);
       lendingAddress = await transactionReceipt4.contractAddress;
 
@@ -42,7 +44,7 @@ describe("Lending Contract", function () {
       await wethToken.connect(owner).transfer(addr1.address, transferAmount);
 
       // Send USDC to Lending contract
-      const usdcToLendingAmount = ethers.parseUnits("500", 6); // Amount of USDC to send to Lending contract
+      const usdcToLendingAmount = ethers.parseUnits("5000", 6); // Amount of USDC to send to Lending contract
       await usdcToken.connect(owner).transfer(lendingAddress, usdcToLendingAmount);
 
     });
@@ -82,7 +84,6 @@ describe("Lending Contract", function () {
         await lending.connect(addr1).borrow(expectedBorrowAmount);
 
         const account = await lending.getAccountInfo(addr1.address);
-        console.log('Health Factor:', account.healthFactor.toString());
 
         console.log('Debt Amount:', account.debtAmount.toString());
 
@@ -141,5 +142,8 @@ describe("Lending Contract", function () {
     const account = await lending.getAccountInfo(addr1.address);
     expect(account.debtAmount).to.equal(0);
   });
+
+
+
 
 });

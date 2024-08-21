@@ -24,6 +24,7 @@ A simple lending Defi APP that allows users to deposit WETH and borrow USDC, usi
 - Switch network to Fuse button.
 - web3.js, ethers to interact with the blockchain network.
 - EVM compatible, as FUSE is an EVM compatible blockchain.
+- nvm v20.9.0
 
 ## Installation
 

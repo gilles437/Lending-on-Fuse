@@ -19,6 +19,7 @@ const USDC_CONTRACT_ABI = USDC_ABI;
 
 const EXPLORER_FUSE_ADDRESS="https://explorer.fuse.io/address/"
 
+// FIXME: most of the functionality here can be broken down into smaller modular chunks
 function App() {
   const [account, setAccount] = useState(null);
   const [web3, setWeb3] = useState(null);

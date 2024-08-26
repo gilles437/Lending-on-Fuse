@@ -28,6 +28,8 @@ contract Lending is ReentrancyGuard, Ownable {
         uint256 lastBorrowTime;
         uint256 accruedInterest;
     }
+
+    // FIXME: the name borrowings can be changed to a single instead of a plural form to prevent confusions, not borrow per se because of the conflict with the borrow function
     mapping(address => Borrow) public borrowings;
 
     struct Account {
@@ -107,6 +109,8 @@ contract Lending is ReentrancyGuard, Ownable {
     }
 
     function borrow(uint256 amount) external whenNotPaused nonReentrant {
+        // FIXME: we can have a function that updates the account and borrow state before the user can perform any action
+
         Account storage account = accounts[msg.sender];
         Borrow storage userBorrow = borrowings[msg.sender];
 
@@ -115,6 +119,7 @@ contract Lending is ReentrancyGuard, Ownable {
         // Calculate the max borrow amount
         uint256 maxBorrow = calculateMaxBorrow(msg.sender);
         // Convert the amount from 6 decimals to 18 decimals
+        // FIXME: better to pass the amount in the decimals of the token we are interacting with
         uint256 amountIn18Decimals = to18Decimals(amount, 6);
         // Compare the amount in 18 decimals with maxBorrow
         require(amountIn18Decimals <= maxBorrow, "Borrow amount exceeds maximum allowed");
@@ -143,20 +148,29 @@ contract Lending is ReentrancyGuard, Ownable {
     }
 
     function repay(uint256 amount) external whenNotPaused nonReentrant {
+        // FIXME: we can have a function that updates the account and borrow state before the user can perform any action
+
         Account storage account = accounts[msg.sender];
         Borrow storage userBorrow = borrowings[msg.sender];
 
         require(amount > 0, "Repay amount must be greater than 0");
+        // FIXME: debtAmount should be updated before interacting with it
         require(account.debtAmount >= amount, "Repay amount exceeds debt");
 
         // Convert the repayment amount to 18 decimals for calculation
+        // FIXME: better to pass the amount in the decimals of the token we are interacting with
         uint256 amountIn18 = to18Decimals(amount, 6);
+
         // Transfer USDC from user to contract
+        // FIXME: always perform transfers after mutations or state updates
         usdcToken.safeTransferFrom(msg.sender, address(this), amount);
+
         // Update the user's debt
+        // FIXME: we can keep the borrow data on the borrow struct to reduce write operations.
         account.debtAmount -= amount;
         // Calculate the accrued interest with proper decimal handling
         uint256 newInterest = calculateAccruedInterest(userBorrow);
+
         userBorrow.accruedInterest += newInterest;
 
         if (amountIn18 >= userBorrow.accruedInterest) {
@@ -167,7 +181,9 @@ contract Lending is ReentrancyGuard, Ownable {
             userBorrow.accruedInterest -= amountIn18;
         }
 
+        // FIXME: we can change the name to userLastTimestamp
         userBorrow.lastBorrowTime = block.timestamp;
+
         calculateMaxBorrow(msg.sender);
 
         emit USDCRepaid(msg.sender, amount);
@@ -207,6 +223,8 @@ contract Lending is ReentrancyGuard, Ownable {
         return collateral; // Convert back to USDC's 6 decimals
     }
 
+    // FIXME: this function is used to perform state updates and return variable, i think the function can be split for both functions
+    // FIXME: another option would be to create a function that updates the state, then we consume that variable in the function
     function calculateMaxBorrow(address user) public  returns (uint256) {
         Account storage account = accounts[user];
         uint256 collateralValue = account.collateralAmount * getEthPrice() / 1e18 * (getUsdcUsdPrice() / 1e6);
@@ -280,4 +298,6 @@ contract Lending is ReentrancyGuard, Ownable {
     receive() external payable {
         revert("Direct ETH deposits not allowed. Use deposit function.");
     }
+
+    // FIXME: no functionality to handle liquidation
 }

@@ -1,23 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import Web3 from 'web3';
 import './App.css';
-import ethIcon from './images/eth-icon.png';
-import usdcIcon from './images/usdc-icon.png';
+
 import fuseIcon from './images/fuse-icon.png';
 import WETH_ABI from './abis/WETH_ABI.json'
 import USDC_ABI from './abis/USDC_ABI.json'
 import WORKING_CONTRACT_ABI from './abis/CONTRACT_ABI.json'
+
 import BorrowDetails from './components/BorrowDetails'
+import YourSupplies from './components/YourSupplies';
+import YourBorrows from './components/YourBorrows';
+import AssetsToSupply from './components/AssetsToSupply';
+import AssetsToBorrow from './components/AssetsToBorrow';
+  
+import loadContractData from './utils/web3Service';
+import { switchToFuseNetwork, connectWallet } from './utils/networkUtils'; 
 
-const CONTRACT_ADDRESS = '0x80706258180341D8aE6334e1934EDC8E0649b057';
-const CONTRACT_ABI = WORKING_CONTRACT_ABI;
-
-const WETH_CONTRACT_ADDRESS = '0x5622F6dC93e08a8b717B149677930C38d5d50682'; 
+const  { REACT_APP_WETH_CONTRACT_ADDRESS, REACT_APP_APY_ETH, REACT_APP_USDC_CONTRACT_ADDRESS, REACT_APP_CONTRACT_ADDRESS} = process.env
+const CONTRACT_ABI = WORKING_CONTRACT_ABI; 
 const WETH_CONTRACT_ABI = WETH_ABI;
-const USDC_CONTRACT_ADDRESS = '0x28C3d1cD466Ba22f6cae51b1a4692a831696391A'; 
 const USDC_CONTRACT_ABI = USDC_ABI; 
-
-const EXPLORER_FUSE_ADDRESS="https://explorer.fuse.io/address/"
 
 function App() {
   const [account, setAccount] = useState(null);
@@ -45,15 +47,12 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [maxBorrow, setMaxBorrow] = useState(0);
   const [interestRate, setInterestRate] = useState(0);
-
   const [error, setError] = useState(null);
-
-  const APY_eth = '0%'
 
   useEffect(() => {
     if (web3 && account) {
       setError(null); 
-      loadContractData();
+      loadContractData(web3,account,setContract,setCollateral,setInterestRate,setMaxBorrow,setCollateralPriceUSD,setDebt,setHealthFactor,setCollateralEnabled,setWethBalance,setWethBalancePriceUSD,setPaused,setIsOwner,fetchUsdcBalance,CONTRACT_ABI,REACT_APP_CONTRACT_ADDRESS,WETH_CONTRACT_ABI,REACT_APP_WETH_CONTRACT_ADDRESS,USDC_CONTRACT_ABI,REACT_APP_USDC_CONTRACT_ADDRESS,setError);
       listenToEvents();
       initializeContracts();
       
@@ -66,16 +65,13 @@ function App() {
         try {
           const web3Instance = new Web3(window.ethereum);
           setWeb3(web3Instance);
-          
           // Check the current network
           const chainId = await window.ethereum.request({ method: 'eth_chainId' });
           const isFuse = chainId === '0x7a'; // Fuse network chain ID
           setIsFuseNetwork(isFuse);
-
           if (isFuse) {
             initializeContracts(web3Instance);
           }
-
           // Handle network change
           window.ethereum.on('chainChanged', (chainId) => {
             setIsFuseNetwork(chainId === '0x7a');
@@ -85,7 +81,6 @@ function App() {
               setContract(null);
             }
           });
-
           setLoading(false);
         } catch (error) {
           console.error('Error initializing Web3:', error);
@@ -101,7 +96,7 @@ function App() {
 
     const initializeContracts = async (web3Instance) => {
       try {
-        const contractInstance = new web3Instance.eth.Contract(CONTRACT_ABI, CONTRACT_ADDRESS);
+        const contractInstance = new web3Instance.eth.Contract(CONTRACT_ABI, REACT_APP_CONTRACT_ADDRESS);
         setContract(contractInstance);
       } catch (error) {
         console.error('Error loading contract:', error);
@@ -129,67 +124,8 @@ function App() {
     };
   }, []);
 
-  const switchToFuseNetwork = async () => {
-    if (window.ethereum) {
-      try {
-        await window.ethereum.request({
-          method: 'wallet_switchEthereumChain',
-          params: [{ chainId: '0x7a' }],
-        });
-      } catch (error) {
-        if (error.code === 4902) {
-          try {
-            await window.ethereum.request({
-              method: 'wallet_addEthereumChain',
-              params: [
-                {
-                  chainId: '0x7a',
-                  chainName: 'Fuse Mainnet',
-                  rpcUrls: ['https://rpc.fuse.io'],
-                  nativeCurrency: {
-                    name: 'FUSE',
-                    symbol: 'FUSE',
-                    decimals: 18,
-                  },
-                  blockExplorerUrls: ['https://explorer.fuse.io'],
-                },
-              ],
-            });
-          } catch (addError) {
-            console.error('Error adding Fuse network:', addError);
-            setError('Error adding Fuse network. Please try again.');
-          }
-        } else {
-          console.error('Error switching network:', error);
-          setError('Error switching network. Please try again.');
-        }
-      }
-    } else {
-      console.error('MetaMask is not installed.');
-      setError('MetaMask is not installed. Please install MetaMask to use this app.');
-    }
-  };
-
-  const connectWallet = async () => {
-    if (window.ethereum) {
-      try {
-        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-        setAccount(accounts[0]);
-        if (web3 && !isFuseNetwork) {
-          await switchToFuseNetwork();
-        }
-      } catch (error) {
-        console.error('Error connecting wallet:', error);
-        setError('Error connecting wallet. Please try again.');
-      }
-    } else {
-      console.error('MetaMask is not installed.');
-      setError('MetaMask is not installed. Please install MetaMask to use this app.');
-    }
-  };
-  
   const fetchUsdcBalance = async () => {
-    const usdcContract = new web3.eth.Contract(USDC_CONTRACT_ABI, USDC_CONTRACT_ADDRESS);
+    const usdcContract = new web3.eth.Contract(USDC_CONTRACT_ABI, REACT_APP_USDC_CONTRACT_ADDRESS);
     const balance = await usdcContract.methods.balanceOf(account).call();
     setUsdcBalance(Number(web3.utils.fromWei(balance, 'mwei')).toFixed(6));  
   };
@@ -197,11 +133,11 @@ function App() {
   const initializeContracts = async () => {
     if (!web3) return; // Check if web3 is available
     try {
-      const wethInstance = new web3.eth.Contract(WETH_CONTRACT_ABI, WETH_CONTRACT_ADDRESS);
+      const wethInstance = new web3.eth.Contract(WETH_CONTRACT_ABI, REACT_APP_WETH_CONTRACT_ADDRESS);
       setWethContract(wethInstance);
       // Check WETH allowance
       await checkWethApproval(wethInstance);      
-      const usdcInstance = new web3.eth.Contract(USDC_CONTRACT_ABI, USDC_CONTRACT_ADDRESS);
+      const usdcInstance = new web3.eth.Contract(USDC_CONTRACT_ABI, REACT_APP_USDC_CONTRACT_ADDRESS);
       setUsdcContract(usdcInstance);
       // Check USDC allowance
       await checkUsdcApproval(usdcInstance);
@@ -214,11 +150,12 @@ function App() {
   const checkWethApproval = async (wethInstance) => {
     try {
       const amountInWei = web3.utils.toWei(depositAmount || '0', 'ether');
-      const allowance = await wethInstance.methods.allowance(account, CONTRACT_ADDRESS).call();
+      const allowance = await wethInstance.methods.allowance(account, REACT_APP_CONTRACT_ADDRESS).call();
       setIsWethApproved((parseFloat(allowance) > 0) && parseFloat(allowance) >= parseFloat(amountInWei) );
 
     } catch (err) {
-      loadContractData();
+      loadContractData(web3,account,setContract,setCollateral,setInterestRate,setMaxBorrow,setCollateralPriceUSD,setDebt,setHealthFactor,setCollateralEnabled,setWethBalance,setWethBalancePriceUSD,setPaused,setIsOwner,fetchUsdcBalance,CONTRACT_ABI,REACT_APP_CONTRACT_ADDRESS,WETH_CONTRACT_ABI,REACT_APP_WETH_CONTRACT_ADDRESS,USDC_CONTRACT_ABI,REACT_APP_USDC_CONTRACT_ADDRESS,setError);
+
       console.error("Error checking WETH approval:", err);
       setError("Failed to check WETH approval. Please try again.");
     }
@@ -227,8 +164,7 @@ function App() {
   const checkUsdcApproval = async (usdcInstance) => {
     try {
       const usdcAmountInWei = web3.utils.toWei(repayAmount || '0', 'mwei');
-      const allowance = await usdcInstance.methods.allowance(account, CONTRACT_ADDRESS).call();
-
+      const allowance = await usdcInstance.methods.allowance(account, REACT_APP_CONTRACT_ADDRESS).call();
       setIsUsdcApproved((usdcAmountInWei > 0) && (parseFloat(allowance)) > 0 && parseFloat(allowance) >= parseFloat(usdcAmountInWei));
 
     } catch (err) {
@@ -241,8 +177,8 @@ function App() {
     if (!isUsdcApproved) {
       // Approve USDC
       try {
-        const usdcAmount = web3.utils.toWei(repayAmount, 'mwei');
-        await usdcContract.methods.approve(CONTRACT_ADDRESS, usdcAmount).send({ from: account });
+        const usdcAmount = web3.utils.toWei(debt, 'mwei');
+        await usdcContract.methods.approve(REACT_APP_CONTRACT_ADDRESS, debt).send({ from: account });
         setError(null); 
         checkUsdcApproval(usdcContract); // Recheck approval after the transaction
       } catch (err) {
@@ -254,7 +190,9 @@ function App() {
       try {
         const usdcAmount = web3.utils.toWei(repayAmount, 'mwei');
         await contract.methods.repay(usdcAmount).send({ from: account });
-        loadContractData();
+        loadContractData(web3,account,setContract,setCollateral,setInterestRate,setMaxBorrow,setCollateralPriceUSD,setDebt,setHealthFactor,setCollateralEnabled,setWethBalance,setWethBalancePriceUSD,setPaused,setIsOwner,fetchUsdcBalance,CONTRACT_ABI,REACT_APP_CONTRACT_ADDRESS,WETH_CONTRACT_ABI,REACT_APP_WETH_CONTRACT_ADDRESS,USDC_CONTRACT_ABI,REACT_APP_USDC_CONTRACT_ADDRESS,setError);
+
+        setIsUsdcApproved(false);
         setError(null); 
       } catch (err) {
         setIsUsdcApproved(false);
@@ -268,7 +206,7 @@ function App() {
     if (!isWethApproved) {
       try {
         const amountInWei = web3.utils.toWei(depositAmount, 'ether');
-        await wethContract.methods.approve(CONTRACT_ADDRESS, amountInWei).send({ from: account });
+        await wethContract.methods.approve(REACT_APP_CONTRACT_ADDRESS, amountInWei).send({ from: account });
         setError(null); 
         checkWethApproval(wethContract); // Recheck approval after the transaction
       } catch (err) {
@@ -279,57 +217,17 @@ function App() {
         try {
             const amountInWei = web3.utils.toWei(depositAmount, 'ether');
             await contract.methods.deposit(amountInWei).send({ from: account });
-            loadContractData();
-            setError(null); 
+            loadContractData(web3,account,setContract,setCollateral,setInterestRate,setMaxBorrow,setCollateralPriceUSD,setDebt,setHealthFactor,setCollateralEnabled,setWethBalance,setWethBalancePriceUSD,setPaused,setIsOwner,fetchUsdcBalance,CONTRACT_ABI,REACT_APP_CONTRACT_ADDRESS,WETH_CONTRACT_ABI,REACT_APP_WETH_CONTRACT_ADDRESS,USDC_CONTRACT_ABI,REACT_APP_USDC_CONTRACT_ADDRESS,setError);
+          setError(null); 
         } catch (err) {
             //to check
-            loadContractData();
+            loadContractData(web3,account,setContract,setCollateral,setInterestRate,setMaxBorrow,setCollateralPriceUSD,setDebt,setHealthFactor,setCollateralEnabled,setWethBalance,setWethBalancePriceUSD,setPaused,setIsOwner,fetchUsdcBalance,CONTRACT_ABI,REACT_APP_CONTRACT_ADDRESS,WETH_CONTRACT_ABI,REACT_APP_WETH_CONTRACT_ADDRESS,USDC_CONTRACT_ABI,REACT_APP_USDC_CONTRACT_ADDRESS,setError);
+
             setIsWethApproved(false);
 
             console.error("Error depositing WETH:", err);
-            setError("Failed to deposit WETH. Please try again.");
+            setError("Failed to deposit WETH. Please Approve and try again.");
         }
-    }
-  };
-
-  const loadContractData = async () => {
-    try {
-      const contractInstance = new web3.eth.Contract(CONTRACT_ABI, CONTRACT_ADDRESS);
-      setContract(contractInstance);
-
-        const accountInfo = await contractInstance.methods.getAccountInfo(account).call();
-        setCollateral(accountInfo.collateralAmount);
-        setInterestRate(Number(accountInfo.interRate) / 100);
-        setMaxBorrow(Number(accountInfo.maxBorrow));
-        const collateralPriceInUSD =  web3.utils.fromWei(accountInfo.collateralAmount, 'ether') * web3.utils.fromWei(accountInfo.ethPrice, 'ether');
-      
-        setCollateralPriceUSD(collateralPriceInUSD);
-        setDebt(accountInfo.debtAmount);
-        
-        if (Number(accountInfo.debtAmount) == 0) {
-            setHealthFactor((2**256-1));
-        }
-        else {
-            setHealthFactor(web3.utils.fromWei(Number(accountInfo.collateralValue), 'ether') / web3.utils.fromWei(Number(accountInfo.debtAmount), 'mwei') );
-        }
-        setCollateralEnabled(accountInfo.isCollateralEnabled);
-   
-        const wethContract = new web3.eth.Contract(WETH_CONTRACT_ABI, WETH_CONTRACT_ADDRESS);
-        const balance = await wethContract.methods.balanceOf(account).call();
-        setWethBalance(web3.utils.fromWei(balance, 'ether'));  
-        const wethBalanceInUsd =  parseFloat(web3.utils.fromWei(balance, 'ether')) * web3.utils.fromWei(accountInfo.ethPrice, 'ether');
-        setWethBalancePriceUSD(wethBalanceInUsd)
-        const pausedState = await contractInstance.methods.paused().call();
-        setPaused(pausedState);
-
-        const ownerAddress = await contractInstance.methods.owner().call();
-        setIsOwner(account.toLowerCase() === ownerAddress.toLowerCase());
-
-        fetchUsdcBalance();
-
-        } catch (err) {
-        console.error("Error loading contract data:", err);
-        setError("Failed to load contract data. Please try again.");
     }
   };
 
@@ -338,7 +236,8 @@ function App() {
     try {
       contract.events.USDCBorrowed({ filter: { user: account } })
         .on('data', (event) => {
-          loadContractData();
+          loadContractData(web3,account,setContract,setCollateral,setInterestRate,setMaxBorrow,setCollateralPriceUSD,setDebt,setHealthFactor,setCollateralEnabled,setWethBalance,setWethBalancePriceUSD,setPaused,setIsOwner,fetchUsdcBalance,CONTRACT_ABI,REACT_APP_CONTRACT_ADDRESS,WETH_CONTRACT_ABI,REACT_APP_WETH_CONTRACT_ADDRESS,USDC_CONTRACT_ABI,REACT_APP_USDC_CONTRACT_ADDRESS,setError);
+
         })
         .on('error', (error) => {
           console.error('Error on Borrowed event:', error);
@@ -347,7 +246,8 @@ function App() {
         
       contract.events.USDCRepaid({ filter: { user: account } })
         .on('data', (event) => {
-          loadContractData();
+          loadContractData(web3,account,setContract,setCollateral,setInterestRate,setMaxBorrow,setCollateralPriceUSD,setDebt,setHealthFactor,setCollateralEnabled,setWethBalance,setWethBalancePriceUSD,setPaused,setIsOwner,fetchUsdcBalance,CONTRACT_ABI,REACT_APP_CONTRACT_ADDRESS,WETH_CONTRACT_ABI,REACT_APP_WETH_CONTRACT_ADDRESS,USDC_CONTRACT_ABI,REACT_APP_USDC_CONTRACT_ADDRESS,setError);
+
         })
         .on('error', (error) => {
           console.error('Error on Repaid event:', error);
@@ -356,7 +256,6 @@ function App() {
     }
     catch(error){
      // console.error('no such event')
-
     }
   };
 
@@ -365,18 +264,17 @@ function App() {
 
       const usdcAmount = web3.utils.toWei(borrowAmount, 'mwei'); 
       await contract.methods.borrow(usdcAmount).send({ from: account });
-      loadContractData();
+      loadContractData(web3,account,setContract,setCollateral,setInterestRate,setMaxBorrow,setCollateralPriceUSD,setDebt,setHealthFactor,setCollateralEnabled,setWethBalance,setWethBalancePriceUSD,setPaused,setIsOwner,fetchUsdcBalance,CONTRACT_ABI,REACT_APP_CONTRACT_ADDRESS,WETH_CONTRACT_ABI,REACT_APP_WETH_CONTRACT_ADDRESS,USDC_CONTRACT_ABI,REACT_APP_USDC_CONTRACT_ADDRESS,setError);
       setError(null); 
     } catch (err) {
-      console.error("Error borrowing USDC:", err.toString());
-
-      if (err.message.includes("revert")) {
-        const reason = err.message.match(/revert (.*)/);
-        setError(reason ? reason[1] : "Transaction reverted. Please check that you have enough collateral and try again.");
-      } else {
-        setError("Failed to borrow USDC. Please try again.");
+        console.error("Error borrowing USDC:", err.toString());
+        if (err.message.includes("revert")) {
+          const reason = err.message.match(/revert (.*)/);
+          setError(reason ? reason[1] : "Transaction reverted. Please check that you have enough collateral and try again.");
+        } else {
+          setError("Failed to borrow USDC. Please try again.");
+        }
       }
-    }
   };
 
   const setMaxWithdrawAmount = () => {
@@ -390,26 +288,33 @@ function App() {
   };
 
   const setMaxBorrowAmount = () => {
-    const maxBorrowAmountInUsdc = web3.utils.fromWei(maxBorrow, 'ether');
-    setBorrowAmount(maxBorrowAmountInUsdc);
-  };
+    const maxBorrowAmountInUsdc = Number(web3.utils.fromWei(maxBorrow, 'mwei'));
+    console.log('maxBorrow',maxBorrow, 'maxBorrowAmountInUsdc', maxBorrowAmountInUsdc)
+    setBorrowAmount(maxBorrowAmountInUsdc  ? maxBorrowAmountInUsdc : 0);
+  }; 
 
-
-  const setMaxRepayAmount = () => {
-    const maxDebt = web3.utils.fromWei(debt, 'mwei')
+  useEffect(() => {
+    const maxDebt =  debt ? web3.utils.fromWei(debt, 'mwei') : 0;
     setRepayAmount(maxDebt);
+     }, [debt]);
+  
+  const setMaxRepayAmount = async () => {
+    const maxDebt =  debt ? web3.utils.fromWei(debt, 'mwei') : 0;
+    setRepayAmount(maxDebt);
+    loadContractData(web3,account,setContract,setCollateral,setInterestRate,setMaxBorrow,setCollateralPriceUSD,setDebt,setHealthFactor,setCollateralEnabled,setWethBalance,setWethBalancePriceUSD,setPaused,setIsOwner,fetchUsdcBalance,CONTRACT_ABI,REACT_APP_CONTRACT_ADDRESS,WETH_CONTRACT_ABI,REACT_APP_WETH_CONTRACT_ADDRESS,USDC_CONTRACT_ABI,REACT_APP_USDC_CONTRACT_ADDRESS,setError);
   };
   
   const withdrawCollateral = async () => {
     try {
       const amountInWei = web3.utils.toWei(withdrawAmount, 'ether');
       await contract.methods.withdraw(amountInWei).send({ from: account });
-      loadContractData();
+      loadContractData(web3,account,setContract,setCollateral,setInterestRate,setMaxBorrow,setCollateralPriceUSD,setDebt,setHealthFactor,setCollateralEnabled,setWethBalance,setWethBalancePriceUSD,setPaused,setIsOwner,fetchUsdcBalance,CONTRACT_ABI,REACT_APP_CONTRACT_ADDRESS,WETH_CONTRACT_ABI,REACT_APP_WETH_CONTRACT_ADDRESS,USDC_CONTRACT_ABI,REACT_APP_USDC_CONTRACT_ADDRESS,setError);
+
       setError(null); 
-    } catch (err) {
-      console.error("Error withdrawing collateral:", err);
-      setError("Failed to withdraw collateral. Please try again.");
-    }
+      } catch (err) {
+        console.error("Error withdrawing collateral:", err);
+        setError("Failed to withdraw collateral. Please try again.");
+      }
   };
 
   const toggleCollateral = async () => {
@@ -420,7 +325,7 @@ function App() {
       } else {
         await contract.methods.disableCollateral().send({ from: account });
       }
-      loadContractData();
+      loadContractData(web3,account,setContract,setCollateral,setInterestRate,setMaxBorrow,setCollateralPriceUSD,setDebt,setHealthFactor,setCollateralEnabled,setWethBalance,setWethBalancePriceUSD,setPaused,setIsOwner,fetchUsdcBalance,CONTRACT_ABI,REACT_APP_CONTRACT_ADDRESS,WETH_CONTRACT_ABI,REACT_APP_WETH_CONTRACT_ADDRESS,USDC_CONTRACT_ABI,REACT_APP_USDC_CONTRACT_ADDRESS,setError);
       setError(null); 
     } catch (err) {
       console.error("Error toggling collateral:", err);
@@ -436,7 +341,7 @@ function App() {
       } else {
         await contract.methods.pause().send({ from: account });
       }
-      loadContractData();
+      loadContractData(web3,account,setContract,setCollateral,setInterestRate,setMaxBorrow,setCollateralPriceUSD,setDebt,setHealthFactor,setCollateralEnabled,setWethBalance,setWethBalancePriceUSD,setPaused,setIsOwner,fetchUsdcBalance,CONTRACT_ABI,REACT_APP_CONTRACT_ADDRESS,WETH_CONTRACT_ABI,REACT_APP_WETH_CONTRACT_ADDRESS,USDC_CONTRACT_ABI,REACT_APP_USDC_CONTRACT_ADDRESS,setError);
       setError(null); 
     } catch (err) {
       console.error("Error toggling contract pause:", err);
@@ -449,14 +354,14 @@ function App() {
         <div className="App">
         <header className="header">
           <h2 className="header-title">Lending On Fuse</h2>
-          <button className="connect-btn" onClick={connectWallet}>
+          <button className="connect-btn" onClick={() => connectWallet(setAccount, setError, web3, isFuseNetwork, switchToFuseNetwork)}>
             {account ? `${account.slice(0, 6)}...${account.slice(-4)}` : 'Connect Wallet'}
           </button>
         </header>
         <div className="container">
           <h1>Please, connect your wallet</h1>
           <p>Please connect your wallet to see your supplies, borrowings, and open positions.</p>
-        <button className="connect-button-not-logged" onClick={connectWallet}>
+        <button className="connect-button-not-logged" onClick={() => connectWallet(setAccount, setError, web3, isFuseNetwork, switchToFuseNetwork)}>
           {account ? `${account.slice(0, 6)}...${account.slice(-4)}` : 'Connect Wallet'}
         </button>
         </div>
@@ -468,12 +373,12 @@ function App() {
     <div className="App">
    <header className="header">
         <h2 className="header-title">Lending On Fuse</h2>
-        <button className="connect-btn" onClick={connectWallet}>
+        <button className="connect-btn" onClick={() => connectWallet(setAccount, setError, web3, isFuseNetwork, switchToFuseNetwork)}>
           <img src={fuseIcon} className="fuse-icon" alt="Fuse Icon"/>
           {account ? `${account.slice(0, 6)}...${account.slice(-4)}` : 'Connect Wallet'}
         </button>
         {!isFuseNetwork &&  (
-          <button className="switch-network-btn" onClick={switchToFuseNetwork}>
+          <button className="switch-network-btn" onClick={() => switchToFuseNetwork(setError)}>
             Switch to Fuse Network
           </button>
         )}
@@ -489,205 +394,62 @@ function App() {
 
       {/* Current Supply Section */}
       <div className="tables-container">
-        <div className="table-block">
-          <h3>Your Supplies</h3>
-          <table className="supplies-table">
-            <thead>
-              <tr>
-                <th>Assets</th>
-                <th>Balance</th>
-                <th>APY</th>
-                <th>Collateral</th>
-                <th>Withdraw</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>
-                  <img src={ethIcon} alt="Ethereum" className="asset-icon" /> <a target="_blank" href={EXPLORER_FUSE_ADDRESS + WETH_CONTRACT_ADDRESS}>WETH</a>
-                </td>
-                <td>
-                  {web3.utils.fromWei(collateral, 'ether')} ETH<br />
-                  ${collateralPriceUSD.toFixed(6)}
-                </td>
-                <td>{APY_eth}%</td>
-                <td>
+                <YourSupplies
+                  web3={web3}
+                  collateral={collateral}
+                  collateralPriceUSD={collateralPriceUSD}
+                  APY_eth={REACT_APP_APY_ETH}
+                  collateralEnabled={collateralEnabled}
+                  toggleCollateral={toggleCollateral}
+                  withdrawAmount={withdrawAmount}
+                  setWithdrawAmount={setWithdrawAmount}
+                  withdrawCollateral={withdrawCollateral}
+                  paused={paused}
+                  debt={debt}
+                  setMaxWithdrawAmount={setMaxWithdrawAmount}
+                />
 
-                  <label className="switch" title={collateralEnabled ? 'Disable collateral' : 'Enable collateral'}>
-                    <input
-                      type="checkbox"
-                      checked={collateralEnabled}
-                      onChange={toggleCollateral}
-                    />
-                    <span className="slider round"></span>
-                  </label>
-                </td>
-                <td>
-                <div className="actions">    
-                    <div className="action">
-                    <input
-                        type="number"
-                        value={withdrawAmount}
-                        onChange={(e) => setWithdrawAmount(e.target.value)}
-                        placeholder="Amount to withdraw (WETH)"
-                        disabled={paused || debt > 0}
-                        />
-                    <button className="action-btn" onClick={withdrawCollateral} disabled={paused || debt > 0}>Withdraw</button>
-                    <button className="max-btn" onClick={setMaxWithdrawAmount} disabled={paused || debt > 0}>
-                    Max
-                    </button>
-                    </div>
-                </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-  
         {/* Your Borrows section */}
-        <div className="table-block">
-          <h3>Your Borrows</h3>
-          <table className="borrows-table">
-            <thead>
-              <tr>
-                <th>Assets</th>
-                <th>Balance</th>
-                <th>APY</th>
-                <th>Repay</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>
-                  <img src={usdcIcon} alt="USDC" className="asset-icon" /> <a target="_blank" href={EXPLORER_FUSE_ADDRESS + USDC_CONTRACT_ADDRESS}>USDC</a>
-                </td>
-                <td>
-                  {Number(web3.utils.fromWei(debt, 'mwei')).toFixed(6)} USDC
-                </td>
-                <td>{interestRate}%</td>
-                <td>
-                <div className="actions">    
-                    <div className="action">
-                        <input
-                            type="number"
-                            value={repayAmount}
-                            onChange={(e) => setRepayAmount(e.target.value)}
-                            placeholder="Amount to repay (USDC)"
-                        />
-                        <button className="action-btn" onClick={handleUsdcApproveOrRepay} disabled={paused || debt == 0}>
-                            {(isUsdcApproved === true) ? 'Repay' : 'Approve'}
-                        </button>
-                        <button  className="max-btn" onClick={setMaxRepayAmount} disabled={paused || debt == 0}>
-                            Max
-                        </button>
-                    </div>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+        <YourBorrows
+                  web3={web3}
+                  debt={debt}
+                  interestRate={interestRate}
+                  repayAmount={repayAmount}
+                  setRepayAmount={setRepayAmount}
+                  handleUsdcApproveOrRepay={handleUsdcApproveOrRepay}
+                  paused={paused}
+                  isUsdcApproved={isUsdcApproved}
+                  setMaxRepayAmount={setMaxRepayAmount}
+                />
       </div>
 
     {/* Assets to supply  Section */}
     <div className="tables-container">
-            <div className="table-block">
-            <h3>Assets to Supply</h3>
-            <table className="supplies-table">
-                <thead>
-                <tr>
-                    <th>Assets</th>
-                    <th>Balance</th>
-                    <th>APY</th>
-                    <th>Collateral</th>
-                    <th>Deposit</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr>
-                    <td>
-                    <img src={ethIcon} alt="Ethereum" className="asset-icon" /> <a target="_blank" href={EXPLORER_FUSE_ADDRESS + WETH_CONTRACT_ADDRESS}>WETH</a>
-                    </td>
-                    <td>
-                        {parseFloat(wethBalance).toFixed(6)} ETH<br />
-                        ${wethBalancePriceUSD.toFixed(6)}
-                    </td>
-                    <td>{APY_eth}%</td>
-                    <td >
-                    <strong>✓</strong>
-                    </td>
-                    <td>
-                    <div className="actions">    
-                    <div className="action">
-                        <input
-                            type="number"
-                            value={depositAmount}
-                            onChange={(e) => setDepositAmount(e.target.value)}
-                            placeholder="Amount to deposit (WETH)"
-                        />
-                        <button className="action-btn" onClick={handleWethApproveOrDeposit} disabled={paused}>
-                            {(isWethApproved === true) ? 'Deposit' : 'Approve'}
-                        </button>
-                        <button className="max-btn" onClick={setMaxDepositAmount} disabled={paused}>
-                                Max
-                        </button>
-            
-                    </div>
-                </div>
-            </td>
-                </tr>
-                </tbody>
-            </table>
-            </div>
+            <AssetsToSupply
+                  web3={web3}
+                  wethBalance={wethBalance}
+                  wethBalancePriceUSD={wethBalancePriceUSD}
+                  APY_eth={REACT_APP_APY_ETH}
+                  depositAmount={depositAmount}
+                  setDepositAmount={setDepositAmount}
+                  handleWethApproveOrDeposit={handleWethApproveOrDeposit}
+                  paused={paused}
+                  isWethApproved={isWethApproved}
+                  setMaxDepositAmount={setMaxDepositAmount}
+                />
 
             {/* Assets to borrow Section */}    
-            <div className="table-block">
-            <h3>Assets to Borrow</h3>
-            <table className="borrows-table">
-                <thead>
-                <tr>
-                    <th>Assets</th>
-                    <th>Balance</th>
-                    <th>APY</th>
-                    <th>Borrow</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr>
-                    <td>
-                    <img src={usdcIcon} alt="USDC" className="asset-icon" /> <a target="_blank" href={EXPLORER_FUSE_ADDRESS + USDC_CONTRACT_ADDRESS}>USDC</a>
-                    </td>
-                    <td>
-                    {usdcBalance} USDC
-                    </td>
-                    <td>{interestRate}%</td>
-                    <td>
-                    <div className="actions">    
-
-                    <div className="action">
-                    <input
-                        type="number"
-                        value={borrowAmount}
-                        onChange={(e) => setBorrowAmount(e.target.value)}
-                        placeholder="Amount to borrow (USDC)"
-                    />
-                    <button className="action-btn" onClick={borrowUSDC} 
-                            disabled={paused || !collateralEnabled}>
-                        Borrow
-                    </button>
-                    <button className="max-btn" onClick={setMaxBorrowAmount} disabled={paused || !collateralEnabled}>
-                    Max
-                    </button>
-                    </div>
-
-                    </div>
-                    </td>
-                </tr>
-                </tbody>
-            </table>
-            </div>
+            <AssetsToBorrow
+                  usdcBalance={usdcBalance}
+                  interestRate={interestRate}
+                  borrowAmount={borrowAmount}
+                  setBorrowAmount={setBorrowAmount}
+                  borrowUSDC={borrowUSDC}
+                  paused={paused}
+                  collateralEnabled={collateralEnabled}
+                  setMaxBorrowAmount={setMaxBorrowAmount}
+                />
         </div>
-
 
       {isOwner && (
         <div className="actions">

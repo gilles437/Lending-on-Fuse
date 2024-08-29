@@ -5,23 +5,25 @@ import './BorrowDetails.css';
 const BorrowDetails = ({ healthFactor, web3, account, contract }) => {
     const [principal, setPrincipal] = useState(null);
     const [accruedInterest, setAccruedInterest] = useState(null);
-    const [lastBorrowTime, setLastBorrowTime] = useState(null);
+    const [userLastTimestamp, setUserLastTimestamp] = useState(null);
+    const LIQUIDATION_THRESHOLD = 0.5;
 
     useEffect(() => {
         async function fetchDebtInfo() {
-            if (web3 && account && contract) {
+            if (web3 && account && contract) { 
                 try {
                     // Call the getDebtInfo function from the smart contract
                     const debtInfo = await contract.methods.getDebtInfo(account).call();
+                    //console.log('accruedInterest',debtInfo.accruedInterest,'principal', debtInfo.principal,'userLastTimestamp', debtInfo.userLastTimestamp)
                     setPrincipal(Number(web3.utils.fromWei(debtInfo.principal, 'mwei')).toFixed(6));  
-                    setAccruedInterest(web3.utils.fromWei(debtInfo.accruedInterest, 'ether'));
-                    setLastBorrowTime(debtInfo.lastBorrowTime);
+                    setAccruedInterest(Number(web3.utils.fromWei(debtInfo.accruedInterest, 'mwei')).toFixed(6));
+                    setUserLastTimestamp(debtInfo.userLastTimestamp);
              
                 } catch (error) {
                     console.error("Error fetching debt info:", error);
                 }
             }
-        }
+        } 
 
         fetchDebtInfo();
     }, [web3, account, contract]);
@@ -53,7 +55,7 @@ const BorrowDetails = ({ healthFactor, web3, account, contract }) => {
             <div className="borrow-info">
                 <div className="borrow-item">
                     <FaHeartbeat className="icon" title="The collateral value divided by the debt, if debt is not null, otherwise infinite." />
-                    <p><strong>Health Factor: {(healthFactor  == (2**256-1)) ? '∞' : `${parseFloat(healthFactor).toFixed(2)}` }</strong></p>
+                    <p><strong>Health Factor: {(healthFactor  == (2**256-1)) ? '∞' : `${(parseFloat(healthFactor) * LIQUIDATION_THRESHOLD).toFixed(2)}` }</strong></p>
                 </div>
                 <div className="borrow-item">
                     <FaCoins className="icon" title="The borrow you made"/>
@@ -64,7 +66,7 @@ const BorrowDetails = ({ healthFactor, web3, account, contract }) => {
             <div className="borrow-info">
                 <div className="borrow-item">
                     <FaPercentage className="icon"  title="The accrued interest of the borrow you made"/>
-                    <p><strong>Accrued Interest:</strong> {accruedInterest ? `${parseFloat(accruedInterest).toFixed(6)}` : 0}</p>
+                    <p><strong>Accrued Interest:</strong> {accruedInterest ? `${parseFloat(accruedInterest).toFixed(6)}` : 0} USDC</p>
                 </div>
             </div>
         </div>

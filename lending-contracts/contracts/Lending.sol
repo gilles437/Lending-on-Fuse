@@ -237,8 +237,6 @@ contract Lending is ReentrancyGuard, Ownable {
             return 0; // No more borrowable amount if debt equals or exceeds max borrowable
         }
         return from18Decimals(maxBorrowable - debtIn18, 6); // Convert back to USDC's 6 decimals
-
-//        return (maxBorrowable - debtIn18); // Subtract existing debt
     }
 
     // Liquidation function

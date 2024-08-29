@@ -10,7 +10,6 @@ yarn-debug.log*
 # Hardhat
 /lending-fe-dapp/node_modules/
 /lending-contracts/node_modules/
-/lending-contracts/node_modules/
 **/cache
 **/artifacts
 

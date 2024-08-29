@@ -65,9 +65,9 @@ Deploy on the fuse network (check hardhad.config.js if you want to configure ano
 
 copy the address provided in the result after **Lending contract deployed to**
 
-Finally, verify the contract:
+Finally, replace your deployed address with 0xADDRESS_OF_THE_DEPLOYED_CONTRACT and verify the contract:
 
- ```npx hardhat verify --network fuse 0x272e3c9e0e6227c81E352F3Df0F051c08b6Cbe17 "0x28C3d1cD466Ba22f6cae51b1a4692a831696391A" "0x5622F6dC93e08a8b717B149677930C38d5d50682" "0x79E94008986d1635A2471e6d538967EBFE70A296" 1000 false```
+ ```npx hardhat verify --network fuse 0xADDRESS_OF_THE_DEPLOYED_CONTRACT "0x28C3d1cD466Ba22f6cae51b1a4692a831696391A" "0x5622F6dC93e08a8b717B149677930C38d5d50682" "0x79E94008986d1635A2471e6d538967EBFE70A296" 1000 false```
 
 where:
 

@@ -1,5 +1,5 @@
 # Node.js
-/node_modules/
+**/node_modules/
 /dist/
 /build/
 /out/
@@ -11,8 +11,8 @@ yarn-debug.log*
 /lending-fe-dapp/node_modules/
 /lending-contracts/node_modules/
 /lending-contracts/node_modules/
-/lending-contracts/cache/
-/lending-contracts/artifacts/
+**/cache
+**/artifacts
 
 # OS generated files
 .DS_Store

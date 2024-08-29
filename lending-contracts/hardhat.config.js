@@ -13,7 +13,9 @@ module.exports = {
     networks: {
       fuse: {
         url: "https://rpc.fuse.io/",
-        accounts: [`${process.env.PK_CONTRACT_OWNER}`] // put dev menomonic or PK here,
+        accounts: [`${process.env.PK_CONTRACT_OWNER}`], // put dev menomonic or PK here
+        gasPrice: 50000000000
+
       },
       spark: {
         url: "https://rpc.fusespark.io/",

@@ -1,21 +1,11 @@
 import Web3 from 'web3';
-import WETH_ABI from './abis/WETH_ABI.json'
-import USDC_ABI from './abis/USDC_ABI.json'
-import WORKING_CONTRACT_ABI from './abis/CONTRACT_ABI.json'
+import WETH_ABI from '../abis/WETH_ABI.json'
+import USDC_ABI from '../abis/USDC_ABI.json'
+import WORKING_CONTRACT_ABI from '../abis/CONTRACT_ABI.json'
 
 const  { REACT_APP_WETH_CONTRACT_ADDRESS, REACT_APP_CONTRACT_ADDRESS} = process.env
 const CONTRACT_ABI = WORKING_CONTRACT_ABI; 
 const WETH_CONTRACT_ABI = WETH_ABI;
-<<<<<<< HEAD
-=======
-
-
-const fetchUsdcBalance = async () => {
-  const usdcContract = new web3.eth.Contract(USDC_CONTRACT_ABI, REACT_APP_USDC_CONTRACT_ADDRESS);
-  const balance = await usdcContract.methods.balanceOf(account).call();
-  setUsdcBalance(Number(web3.utils.fromWei(balance, 'mwei')).toFixed(6));  
-};
->>>>>>> c6e4741a (change loadContractData)
 
 const loadContractData = async (
   web3,
@@ -32,10 +22,7 @@ const loadContractData = async (
   setWethBalancePriceUSD,
   setPaused,
   setIsOwner,
-<<<<<<< HEAD
   fetchUsdcBalance,
-=======
->>>>>>> c6e4741a (change loadContractData)
   setError
 ) => {
   try {
@@ -50,6 +37,7 @@ const loadContractData = async (
     setMaxBorrow(Number(accountInfo.maxBorrow));
     const collateralPriceInUSD = web3.utils.fromWei(accountInfo.collateralAmount, 'ether') * web3.utils.fromWei(accountInfo.ethPrice, 'ether');
     setCollateralPriceUSD(collateralPriceInUSD);
+
     const myDebt = parseFloat(web3.utils.fromWei(Number(debtInfo.principal), 'mwei')) + parseFloat(web3.utils.fromWei(Number(debtInfo.accruedInterest), 'mwei'));
     setDebt(debtInfo.principal + debtInfo.accruedInterest);
 
@@ -60,6 +48,7 @@ const loadContractData = async (
     }
 
     setCollateralEnabled(accountInfo.isCollateralEnabled);
+
     const wethContract = new web3.eth.Contract(WETH_CONTRACT_ABI, REACT_APP_WETH_CONTRACT_ADDRESS);
     const balance = await wethContract.methods.balanceOf(account).call();
     setWethBalance(web3.utils.fromWei(balance, 'ether'));

@@ -52,11 +52,7 @@ function App() {
   useEffect(() => {
     if (web3 && account) {
       setError(null); 
-<<<<<<< HEAD
       loadContractData(web3,account,setContract,setCollateral,setInterestRate,setMaxBorrow,setCollateralPriceUSD,setDebt,setHealthFactor,setCollateralEnabled,setWethBalance,setWethBalancePriceUSD,setPaused,setIsOwner,fetchUsdcBalance,setError);
-=======
-      loadContractData(web3,account,setContract,setCollateral,setInterestRate,setMaxBorrow,setCollateralPriceUSD,setDebt,setHealthFactor,setCollateralEnabled,setWethBalance,setWethBalancePriceUSD,setPaused,setIsOwner,setError);
->>>>>>> c6e4741a (change loadContractData)
       listenToEvents();
       initializeContracts();
       
@@ -128,7 +124,11 @@ function App() {
     };
   }, []);
 
-
+  const fetchUsdcBalance = async () => {
+    const usdcContract = new web3.eth.Contract(USDC_CONTRACT_ABI, REACT_APP_USDC_CONTRACT_ADDRESS);
+    const balance = await usdcContract.methods.balanceOf(account).call();
+    setUsdcBalance(Number(web3.utils.fromWei(balance, 'mwei')).toFixed(6));  
+  };
 
   const initializeContracts = async () => {
     if (!web3) return; // Check if web3 is available
@@ -154,7 +154,8 @@ function App() {
       setIsWethApproved((parseFloat(allowance) > 0) && parseFloat(allowance) >= parseFloat(amountInWei) );
 
     } catch (err) {
-      loadContractData(web3,account,setContract,setCollateral,setInterestRate,setMaxBorrow,setCollateralPriceUSD,setDebt,setHealthFactor,setCollateralEnabled,setWethBalance,setWethBalancePriceUSD,setPaused,setIsOwner,setError);
+      loadContractData(web3,account,setContract,setCollateral,setInterestRate,setMaxBorrow,setCollateralPriceUSD,setDebt,setHealthFactor,setCollateralEnabled,setWethBalance,setWethBalancePriceUSD,setPaused,setIsOwner,fetchUsdcBalance,setError);
+
       console.error("Error checking WETH approval:", err);
       setError("Failed to check WETH approval. Please try again.");
     }
@@ -189,7 +190,8 @@ function App() {
       try {
         const usdcAmount = web3.utils.toWei(repayAmount, 'mwei');
         await contract.methods.repay(usdcAmount).send({ from: account });
-        loadContractData(web3,account,setContract,setCollateral,setInterestRate,setMaxBorrow,setCollateralPriceUSD,setDebt,setHealthFactor,setCollateralEnabled,setWethBalance,setWethBalancePriceUSD,setPaused,setIsOwner,setError);
+        loadContractData(web3,account,setContract,setCollateral,setInterestRate,setMaxBorrow,setCollateralPriceUSD,setDebt,setHealthFactor,setCollateralEnabled,setWethBalance,setWethBalancePriceUSD,setPaused,setIsOwner,fetchUsdcBalance,setError);
+
         setIsUsdcApproved(false);
         setError(null); 
       } catch (err) {
@@ -215,11 +217,12 @@ function App() {
         try {
             const amountInWei = web3.utils.toWei(depositAmount, 'ether');
             await contract.methods.deposit(amountInWei).send({ from: account });
-            loadContractData(web3,account,setContract,setCollateral,setInterestRate,setMaxBorrow,setCollateralPriceUSD,setDebt,setHealthFactor,setCollateralEnabled,setWethBalance,setWethBalancePriceUSD,setPaused,setIsOwner,setError);
-          setError(null); 
+            loadContractData(web3,account,setContract,setCollateral,setInterestRate,setMaxBorrow,setCollateralPriceUSD,setDebt,setHealthFactor,setCollateralEnabled,setWethBalance,setWethBalancePriceUSD,setPaused,setIsOwner,fetchUsdcBalance,setError);
+            setError(null); 
         } catch (err) {
             //to check
-            loadContractData(web3,account,setContract,setCollateral,setInterestRate,setMaxBorrow,setCollateralPriceUSD,setDebt,setHealthFactor,setCollateralEnabled,setWethBalance,setWethBalancePriceUSD,setPaused,setIsOwner,setError);
+            loadContractData(web3,account,setContract,setCollateral,setInterestRate,setMaxBorrow,setCollateralPriceUSD,setDebt,setHealthFactor,setCollateralEnabled,setWethBalance,setWethBalancePriceUSD,setPaused,setIsOwner,fetchUsdcBalance,setError);
+
             setIsWethApproved(false);
 
             console.error("Error depositing WETH:", err);
@@ -233,7 +236,8 @@ function App() {
     try {
       contract.events.USDCBorrowed({ filter: { user: account } })
         .on('data', (event) => {
-                loadContractData(web3,account,setContract,setCollateral,setInterestRate,setMaxBorrow,setCollateralPriceUSD,setDebt,setHealthFactor,setCollateralEnabled,setWethBalance,setWethBalancePriceUSD,setPaused,setIsOwner,setError);
+          loadContractData(web3,account,setContract,setCollateral,setInterestRate,setMaxBorrow,setCollateralPriceUSD,setDebt,setHealthFactor,setCollateralEnabled,setWethBalance,setWethBalancePriceUSD,setPaused,setIsOwner,fetchUsdcBalance,setError);
+
         })
         .on('error', (error) => {
           console.error('Error on Borrowed event:', error);
@@ -242,7 +246,8 @@ function App() {
         
       contract.events.USDCRepaid({ filter: { user: account } })
         .on('data', (event) => {
-          loadContractData(web3,account,setContract,setCollateral,setInterestRate,setMaxBorrow,setCollateralPriceUSD,setDebt,setHealthFactor,setCollateralEnabled,setWethBalance,setWethBalancePriceUSD,setPaused,setIsOwner,setError);
+          loadContractData(web3,account,setContract,setCollateral,setInterestRate,setMaxBorrow,setCollateralPriceUSD,setDebt,setHealthFactor,setCollateralEnabled,setWethBalance,setWethBalancePriceUSD,setPaused,setIsOwner,fetchUsdcBalance,setError);
+
         })
         .on('error', (error) => {
           console.error('Error on Repaid event:', error);
@@ -259,7 +264,7 @@ function App() {
 
       const usdcAmount = web3.utils.toWei(borrowAmount, 'mwei'); 
       await contract.methods.borrow(usdcAmount).send({ from: account });
-      loadContractData(web3,account,setContract,setCollateral,setInterestRate,setMaxBorrow,setCollateralPriceUSD,setDebt,setHealthFactor,setCollateralEnabled,setWethBalance,setWethBalancePriceUSD,setPaused,setIsOwner,setError);
+      loadContractData(web3,account,setContract,setCollateral,setInterestRate,setMaxBorrow,setCollateralPriceUSD,setDebt,setHealthFactor,setCollateralEnabled,setWethBalance,setWethBalancePriceUSD,setPaused,setIsOwner,fetchUsdcBalance,setError);
       setError(null); 
     } catch (err) {
         console.error("Error borrowing USDC:", err.toString());
@@ -296,16 +301,14 @@ function App() {
   const setMaxRepayAmount = async () => {
     const maxDebt =  debt ? web3.utils.fromWei(debt, 'mwei') : 0;
     setRepayAmount(maxDebt);
-    loadContractData(web3,account,setContract,setCollateral,setInterestRate,setMaxBorrow,setCollateralPriceUSD,setDebt,setHealthFactor,setCollateralEnabled,setWethBalance,setWethBalancePriceUSD,setPaused,setIsOwner,setError);
-
+    loadContractData(web3,account,setContract,setCollateral,setInterestRate,setMaxBorrow,setCollateralPriceUSD,setDebt,setHealthFactor,setCollateralEnabled,setWethBalance,setWethBalancePriceUSD,setPaused,setIsOwner,fetchUsdcBalance,setError);
   };
   
   const withdrawCollateral = async () => {
     try {
       const amountInWei = web3.utils.toWei(withdrawAmount, 'ether');
       await contract.methods.withdraw(amountInWei).send({ from: account });
-            loadContractData(web3,account,setContract,setCollateral,setInterestRate,setMaxBorrow,setCollateralPriceUSD,setDebt,setHealthFactor,setCollateralEnabled,setWethBalance,setWethBalancePriceUSD,setPaused,setIsOwner,setError);
-
+      loadContractData(web3,account,setContract,setCollateral,setInterestRate,setMaxBorrow,setCollateralPriceUSD,setDebt,setHealthFactor,setCollateralEnabled,setWethBalance,setWethBalancePriceUSD,setPaused,setIsOwner,fetchUsdcBalance,setError);
 
       setError(null); 
       } catch (err) {
@@ -322,8 +325,7 @@ function App() {
       } else {
         await contract.methods.disableCollateral().send({ from: account });
       }
-            loadContractData(web3,account,setContract,setCollateral,setInterestRate,setMaxBorrow,setCollateralPriceUSD,setDebt,setHealthFactor,setCollateralEnabled,setWethBalance,setWethBalancePriceUSD,setPaused,setIsOwner,setError);
-
+      loadContractData(web3,account,setContract,setCollateral,setInterestRate,setMaxBorrow,setCollateralPriceUSD,setDebt,setHealthFactor,setCollateralEnabled,setWethBalance,setWethBalancePriceUSD,setPaused,setIsOwner,fetchUsdcBalance,setError);
       setError(null); 
     } catch (err) {
       console.error("Error toggling collateral:", err);
@@ -339,8 +341,7 @@ function App() {
       } else {
         await contract.methods.pause().send({ from: account });
       }
-            loadContractData(web3,account,setContract,setCollateral,setInterestRate,setMaxBorrow,setCollateralPriceUSD,setDebt,setHealthFactor,setCollateralEnabled,setWethBalance,setWethBalancePriceUSD,setPaused,setIsOwner,setError);
-
+      loadContractData(web3,account,setContract,setCollateral,setInterestRate,setMaxBorrow,setCollateralPriceUSD,setDebt,setHealthFactor,setCollateralEnabled,setWethBalance,setWethBalancePriceUSD,setPaused,setIsOwner,fetchUsdcBalance,setError);
       setError(null); 
     } catch (err) {
       console.error("Error toggling contract pause:", err);

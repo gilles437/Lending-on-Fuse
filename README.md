@@ -61,6 +61,14 @@ Once tests are successful, you can deploy the **Lending** smart contract:
 
 Deploy on the fuse network (check hardhad.config.js if you want to configure another network):
 
+1. Set the interest rate in scripts/deploy.js, look for the line:
+
+```const INTEREST_RATE = 1000```
+
+   and set to your value, where 1000 corresponds to a 10% interest rate.
+
+2. Run the deploy script
+
 ```npx hardhat run scripts/deploy.js --network fuse```
 
 copy the address provided in the result after **Lending contract deployed to**

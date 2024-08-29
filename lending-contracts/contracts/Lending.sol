@@ -72,8 +72,9 @@ contract Lending is ReentrancyGuard, Ownable {
         usdcToken = IERC20(_usdcToken);
         wethToken = IERC20(_wethToken);
         interestRate = _interestRate;
-        uint256 adjustedInterestRate = (_interestRate * 1e18) / 100;  // Results in 5e16, representing 0.05
+        uint256 adjustedInterestRate = (_interestRate * 1e18) / (100 * 100);  // representing 0.05 for 5% or interestRate = 500
         perSecondRate = adjustedInterestRate / SECONDS_IN_YEAR;
+        console.log('perSecondRate',perSecondRate, 'interestRate',interestRate);
         if (isTesting == true) {
             sValueFeed = PriceFeedMock(_sValueFeed);
         }
@@ -119,7 +120,6 @@ contract Lending is ReentrancyGuard, Ownable {
         if (userBorrow.principal > 0) {
             uint256 timeElapsed = block.timestamp - userBorrow.userLastTimestamp;
             userBorrow.accruedInterest += (userBorrow.principal * perSecondRate * timeElapsed) / 1e18;
-
         }
 
         account.maxBorrow = calculateMaxBorrow(user);

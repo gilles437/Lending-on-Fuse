@@ -34,7 +34,7 @@ const AssetsToSupply = ({
         </td>
           <td>
             {parseFloat(wethBalance).toFixed(6)} ETH<br />
-            ${wethBalancePriceUSD.toFixed(6)}
+            ${parseFloat(wethBalancePriceUSD).toFixed(6)}
           </td>
           <td>0%</td>
           <td>

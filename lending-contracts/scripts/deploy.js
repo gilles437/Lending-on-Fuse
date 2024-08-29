@@ -9,8 +9,8 @@ async function main() {
     const ORACLE_ADDRESS = "0x79E94008986d1635A2471e6d538967EBFE70A296"; //  Oracle contract address
 
     const Lending = await ethers.getContractFactory("Lending");
-    
-    const lending = await Lending.deploy(USDC_ADDRESS, WETH_ADDRESS, ORACLE_ADDRESS, 1000 , false);
+    //interest rate 10000 = 100%
+    const lending = await Lending.deploy(USDC_ADDRESS, WETH_ADDRESS, ORACLE_ADDRESS, 10000 , false);
 
     console.log("Lending contract deployed to:", await lending.target);
 }

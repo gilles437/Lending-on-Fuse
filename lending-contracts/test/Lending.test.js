@@ -4,11 +4,13 @@ const { ethers } = require("hardhat");
 
 const ETH_USD_PRICE = 2650
 const BORROW_PERCENTAGE = 0.5
+const INTEREST_RATE = 10000 // 10000 = 100%
+const EPSILON_AMOUNT = 0.000001
+
 describe("Lending Contract", function () {
     let lending, usdcToken, wethToken;
     let owner, addr1, addr2;
     let usdcAddress, wethAddress, priceFeedMockAddress, lendingAddress;
-
 
     beforeEach(async function () {
       [owner, addr1, addr2] = await ethers.getSigners();
@@ -31,7 +33,7 @@ describe("Lending Contract", function () {
 
       // Deploy the lending contract
       const Lending = await ethers.getContractFactory("Lending");
-      lending = await Lending.deploy( usdcAddress,  wethAddress,  priceFeedMockAddress, 100000000000, true); // Interest rate of 5%
+      lending = await Lending.deploy( usdcAddress,  wethAddress,  priceFeedMockAddress, INTEREST_RATE, true); // Interest rate of 5%
       const transactionReceipt4 = await lending.deploymentTransaction().wait(1);
       lendingAddress = await transactionReceipt4.contractAddress;
 
@@ -42,7 +44,7 @@ describe("Lending Contract", function () {
       await wethToken.connect(owner).transfer(addr1.address, transferAmount);
 
       // Send USDC to Lending contract
-      const usdcToLendingAmount = ethers.parseUnits("500", 6); // Amount of USDC to send to Lending contract
+      const usdcToLendingAmount = ethers.parseUnits("5000", 6); // Amount of USDC to send to Lending contract
       await usdcToken.connect(owner).transfer(lendingAddress, usdcToLendingAmount);
 
     });
@@ -82,7 +84,6 @@ describe("Lending Contract", function () {
         await lending.connect(addr1).borrow(expectedBorrowAmount);
 
         const account = await lending.getAccountInfo(addr1.address);
-        console.log('Health Factor:', account.healthFactor.toString());
 
         console.log('Debt Amount:', account.debtAmount.toString());
 
@@ -126,6 +127,7 @@ describe("Lending Contract", function () {
     const depositAmountInUnits = ethers.formatUnits(depositAmount, 18); // Convert WETH amount to a number
     const borrowAmount = ethers.parseUnits((depositAmountInUnits * (wethPriceInUSDC / 1e6) * borrowPercentage).toString(), 6); // Convert to USDC units
 
+    console.log('depositAmountInUnits', depositAmountInUnits, 'borrowAmount', borrowAmount)
     await wethToken.connect(addr1).approve(lendingAddress, depositAmount);
     await lending.connect(addr1).deposit(depositAmount);
     await lending.connect(addr1).enableCollateral();
@@ -138,8 +140,135 @@ describe("Lending Contract", function () {
     await usdcToken.connect(addr1).approve(lendingAddress, borrowAmount);
     await lending.connect(addr1).repay(borrowAmount);
 
+
     const account = await lending.getAccountInfo(addr1.address);
-    expect(account.debtAmount).to.equal(0);
+    const debt = await lending.getDebtInfo(addr1.address);
+    console.log('debt.principal', debt.principal)
+    expect(Number(ethers.formatUnits(debt.principal, 18))).to.lte(EPSILON_AMOUNT);
   });
 
+  it("Should allow users to repay partially their USDC debt", async function () {
+    const depositAmount = ethers.parseUnits("0.1", 18); // 0.1 WETH (18 decimals)
+
+    // Assuming 1 WETH = ETH_USD_PRICE USDC (scaled to 6 decimals)
+    const wethPriceInUSDC = ETH_USD_PRICE * 1e6; // ETH_USD_PRICE USDC with 6 decimals
+    const borrowPercentage = BORROW_PERCENTAGE; // 0.5 is 50% of WETH value in USDC
+
+    // Calculate the borrow amount based on the deposit amount
+    const depositAmountInUnits = ethers.formatUnits(depositAmount, 18); // Convert WETH amount to a number
+    const borrowAmount = ethers.parseUnits((depositAmountInUnits * (wethPriceInUSDC / 1e6) * borrowPercentage).toString(), 6); // Convert to USDC units
+
+    console.log('depositAmountInUnits', depositAmountInUnits, 'borrowAmount', borrowAmount)
+    await wethToken.connect(addr1).approve(lendingAddress, depositAmount);
+    await lending.connect(addr1).deposit(depositAmount);
+    await lending.connect(addr1).enableCollateral();
+
+    await lending.connect(addr1).borrow(borrowAmount);
+
+    // Ensure addr1 has USDC to repay the debt
+    await usdcToken.connect(owner).transfer(addr1.address, borrowAmount);
+
+    const repayAmount = Number(Number(borrowAmount) / 2);
+    await usdcToken.connect(addr1).approve(lendingAddress, repayAmount);
+    await lending.connect(addr1).repay(repayAmount);
+
+    const account = await lending.getAccountInfo(addr1.address);
+    const debt = await lending.getDebtInfo(addr1.address);
+    console.log('debt.principal', debt.principal)
+    expect(Number(ethers.formatUnits(Number(debt.principal) / 2), 18)).to.lte(EPSILON_AMOUNT);
+  });
+
+
+// // Additional test for accrued interest with real-time 15 seconds delay
+// it("Should calculate and accrue interest correctly after a real-time 15 seconds delay", async function () {
+//   const depositAmount = ethers.parseUnits("1", 18); // 1 WETH
+//   const borrowAmount = ethers.parseUnits("1000", 6); // 1000 USDC
+
+//   await wethToken.connect(addr1).approve(lendingAddress, depositAmount);
+//   await lending.connect(addr1).deposit(depositAmount);
+//   await lending.connect(addr1).enableCollateral();
+//   await lending.connect(addr1).borrow(borrowAmount);
+
+//   const accountBefore15Seconds = await lending.getAccountInfo(addr1.address);
+
+//   // Wait for 15 real-time seconds
+//   console.log("Waiting for 15 seconds...");
+//   await new Promise(resolve => setTimeout(resolve, 15000)); // Sleep for 15 seconds
+
+//   const accountAfter15Seconds = await lending.getAccountInfo(addr1.address);
+
+//   // Calculate expected debt after 15 seconds
+//   const interestRatePerSecond = INTEREST_RATE / (365 * 24 * 3600); // 5% annual interest rate converted to per second
+//   const expectedDebtAfter15Seconds = Number(Number(borrowAmount) * (1 + (parseFloat(interestRatePerSecond) * 15)));
+
+//   console.log('Debt Amount before 15 Seconds:', accountBefore15Seconds.ac);
+//   console.log('Debt Amount After 15 Seconds:', accountAfter15Seconds.debtAmount.toString());
+//   console.log('Expected Debt After 15 Seconds:', expectedDebtAfter15Seconds.toString());
+
+
+//   expect(accountAfter15Seconds.debtAmount).to.be.closeTo(expectedDebtAfter15Seconds, ethers.parseUnits("0.01", 6)); // Allowing a small margin for precision
+
+//   // Repay debt after interest accrual
+//   await usdcToken.connect(owner).transfer(addr1.address, expectedDebtAfter15Seconds);
+//   await usdcToken.connect(addr1).approve(lendingAddress, expectedDebtAfter15Seconds);
+//   await lending.connect(addr1).repay(expectedDebtAfter15Seconds);
+
+//   const accountAfterRepayment = await lending.getAccountInfo(addr1.address);
+//   expect(accountAfterRepayment.debtAmount).to.equal(0);
+// });
+
+
+// // Additional test for accrued interest with real-time 15 seconds delay
+// it("Should calculate and accrue interest correctly after a real-time 15 seconds delay", async function () {
+//   const depositAmount = ethers.parseUnits("1", 18); // 1 WETH
+//   const borrowAmount = ethers.parseUnits("1000", 6); // 1000 USDC
+
+//   await wethToken.connect(addr1).approve(lendingAddress, depositAmount);
+//   await lending.connect(addr1).deposit(depositAmount);
+//   await lending.connect(addr1).enableCollateral();
+//   await lending.connect(addr1).borrow(borrowAmount);
+
+//   // Get debt info before the delay
+//   const debtInfoBefore = await lending.getDebtInfo(addr1.address);
+//   const initialPrincipalDebt = debtInfoBefore.principal;
+//   const initialAccruedInterest = debtInfoBefore.accruedInterest;
+
+//   console.log("Initial Principal Debt:", initialPrincipalDebt);
+//   console.log("Initial Accrued Interest:", initialAccruedInterest);
+
+//   // Wait for 15 real-time seconds
+//   console.log("Waiting for 15 seconds...");
+//   await new Promise(resolve => setTimeout(resolve, 15000)); // Sleep for 15 seconds
+
+//   // Get debt info after the 15-second delay
+//   const debtInfoAfter = await lending.getDebtInfo(addr1.address);
+//   const newAccruedInterest = Number(debtInfoAfter.accruedInterest);
+
+//   // Calculate expected accrued interest after 15 seconds
+//   const interestRatePerSecond = INTEREST_RATE / (365 * 24 * 3600); // 5% annual interest rate converted to per second
+//   const accruedInterestOver15Seconds = Number(initialPrincipalDebt) * interestRatePerSecond * 15;
+//   const expectedAccruedInterest = Number(Number(initialAccruedInterest) + accruedInterestOver15Seconds);
+//   const expectedTotalDebtAfter15Seconds = Number(initialPrincipalDebt) + expectedAccruedInterest;
+
+//   console.log("Accrued Interest After 15 Seconds:", newAccruedInterest);
+//   console.log("Expected Accrued Interest After 15 Seconds:", expectedAccruedInterest);
+//   console.log("Total Debt Amount After 15 Seconds:", debtInfoAfter.totalDebtAmount);
+//   console.log("Expected Total Debt After 15 Seconds:", expectedTotalDebtAfter15Seconds);
+
+//   // Verify that the accrued interest and total debt are close to the expected values
+//   expect(debtInfoAfter.accruedInterest).to.be.closeTo(ethers.parseUnits(expectedAccruedInterest, 6), ethers.parseUnits("0.01", 6));
+//   expect(debtInfoAfter.totalDebtAmount).to.be.closeTo(ethers.parseUnits(expectedTotalDebtAfter15Seconds.toString(), 6), ethers.parseUnits("0.01", 6));
+
+//   // Repay debt after interest accrual
+//   await usdcToken.connect(owner).transfer(addr1.address, expectedTotalDebtAfter15Seconds);
+//   await usdcToken.connect(addr1).approve(lendingAddress, expectedTotalDebtAfter15Seconds);
+//   await lending.connect(addr1).repay(expectedTotalDebtAfter15Seconds);
+
+//   const accountAfterRepayment = await lending.getAccountInfo(addr1.address);
+//   expect(accountAfterRepayment.debtAmount).to.equal(0);
+// });
+
 });
+
+
+

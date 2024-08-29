@@ -6,6 +6,16 @@ import WORKING_CONTRACT_ABI from './abis/CONTRACT_ABI.json'
 const  { REACT_APP_WETH_CONTRACT_ADDRESS, REACT_APP_CONTRACT_ADDRESS} = process.env
 const CONTRACT_ABI = WORKING_CONTRACT_ABI; 
 const WETH_CONTRACT_ABI = WETH_ABI;
+<<<<<<< HEAD
+=======
+
+
+const fetchUsdcBalance = async () => {
+  const usdcContract = new web3.eth.Contract(USDC_CONTRACT_ABI, REACT_APP_USDC_CONTRACT_ADDRESS);
+  const balance = await usdcContract.methods.balanceOf(account).call();
+  setUsdcBalance(Number(web3.utils.fromWei(balance, 'mwei')).toFixed(6));  
+};
+>>>>>>> c6e4741a (change loadContractData)
 
 const loadContractData = async (
   web3,
@@ -22,7 +32,10 @@ const loadContractData = async (
   setWethBalancePriceUSD,
   setPaused,
   setIsOwner,
+<<<<<<< HEAD
   fetchUsdcBalance,
+=======
+>>>>>>> c6e4741a (change loadContractData)
   setError
 ) => {
   try {

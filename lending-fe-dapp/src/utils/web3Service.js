@@ -1,6 +1,11 @@
-// src/web3Service.js
-
 import Web3 from 'web3';
+import WETH_ABI from './abis/WETH_ABI.json'
+import USDC_ABI from './abis/USDC_ABI.json'
+import WORKING_CONTRACT_ABI from './abis/CONTRACT_ABI.json'
+
+const  { REACT_APP_WETH_CONTRACT_ADDRESS, REACT_APP_CONTRACT_ADDRESS} = process.env
+const CONTRACT_ABI = WORKING_CONTRACT_ABI; 
+const WETH_CONTRACT_ABI = WETH_ABI;
 
 const loadContractData = async (
   web3,
@@ -18,16 +23,10 @@ const loadContractData = async (
   setPaused,
   setIsOwner,
   fetchUsdcBalance,
-  CONTRACT_ABI,
-  CONTRACT_ADDRESS,
-  WETH_CONTRACT_ABI,
-  WETH_CONTRACT_ADDRESS,
-  USDC_CONTRACT_ABI,
-  USDC_CONTRACT_ADDRESS,
   setError
 ) => {
   try {
-    const contractInstance = new web3.eth.Contract(CONTRACT_ABI, CONTRACT_ADDRESS);
+    const contractInstance = new web3.eth.Contract(CONTRACT_ABI, REACT_APP_CONTRACT_ADDRESS);
     setContract(contractInstance);
 
     const accountInfo = await contractInstance.methods.getAccountInfo(account).call();
@@ -38,7 +37,6 @@ const loadContractData = async (
     setMaxBorrow(Number(accountInfo.maxBorrow));
     const collateralPriceInUSD = web3.utils.fromWei(accountInfo.collateralAmount, 'ether') * web3.utils.fromWei(accountInfo.ethPrice, 'ether');
     setCollateralPriceUSD(collateralPriceInUSD);
-
     const myDebt = parseFloat(web3.utils.fromWei(Number(debtInfo.principal), 'mwei')) + parseFloat(web3.utils.fromWei(Number(debtInfo.accruedInterest), 'mwei'));
     setDebt(debtInfo.principal + debtInfo.accruedInterest);
 
@@ -49,8 +47,7 @@ const loadContractData = async (
     }
 
     setCollateralEnabled(accountInfo.isCollateralEnabled);
-
-    const wethContract = new web3.eth.Contract(WETH_CONTRACT_ABI, WETH_CONTRACT_ADDRESS);
+    const wethContract = new web3.eth.Contract(WETH_CONTRACT_ABI, REACT_APP_WETH_CONTRACT_ADDRESS);
     const balance = await wethContract.methods.balanceOf(account).call();
     setWethBalance(web3.utils.fromWei(balance, 'ether'));
     const wethBalanceInUsd = parseFloat(web3.utils.fromWei(balance, 'ether')) * web3.utils.fromWei(accountInfo.ethPrice, 'ether');

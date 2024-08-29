@@ -67,7 +67,7 @@ copy the address provided in the result after **Lending contract deployed to**
 
 Finally, verify the contract:
 
- ```npx hardhat verify --network fuse <the copied address> "0x28C3d1cD466Ba22f6cae51b1a4692a831696391A" "0x5622F6dC93e08a8b717B149677930C38d5d50682" "0x79E94008986d1635A2471e6d538967EBFE70A296" 10 false```
+ ```npx hardhat verify --network fuse 0x272e3c9e0e6227c81E352F3Df0F051c08b6Cbe17 "0x28C3d1cD466Ba22f6cae51b1a4692a831696391A" "0x5622F6dC93e08a8b717B149677930C38d5d50682" "0x79E94008986d1635A2471e6d538967EBFE70A296" 1000 false```
 
 where:
 
@@ -94,15 +94,20 @@ We're all set with the smart contract installation and configuration.
  
  ```cd ./lending-fe-dapp```
 
- Copy the newly generated smart contract **CONTRACT_ABI** and **CONTRACT_ADDRESS** in the App.js and ./abis/CONTRACT_ABI.json:
+ 1. Copy the newly generated smart contract address in the .env  file:
+ 
+ ```cp .env-example .env```  
 
-1. Open App.js and replace the **CONTRACT_ADDRESS** with the new deployed smart contract address.
+and replace the contract address in the field **REACT_APP_CONTRACT_ADDRESS** with the contract address that you just deployed.
+
 2. Go to [Fuse explorer]() and paste the address of the new smart contract. Then go to the contract section and copy the ABI of the contract.
-    Paste the ABI in the file ./abis/CONTRACT_ABI.json and Save the file.
+    Paste the ABI in the file ```./src/abis/CONTRACT_ABI.json``` and Save the file.
+
+3. Run npm install
 
  ```npm install```
-
-In the project directory, you can then run:
+ 
+4. In the project directory, you can then run the app:
 
  ```npm run start```
 
